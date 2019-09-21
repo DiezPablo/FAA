@@ -16,6 +16,7 @@ class Datos:
 
           # Guardamos el nombre de los atributos
           self.nombreAtributos = f.readline().split(',')
+          print(self.nombreAtributos)
 
           # Eliminamos el ultimo \n que hay en la linea
           self.nombreAtributos.pop()
@@ -30,7 +31,6 @@ class Datos:
                       self.nominalAtributos.append('False')
                   else:
                       self.nominalAtributos.append('True')
-              print(self.nominalAtributos)
           except ValueError:
               print("Error")
 
@@ -38,6 +38,17 @@ class Datos:
           # Guardamos el numero de atributos
           self.numAtributos = len(self.nombreAtributos)
 
+          datosAux = f.readlines()
+          datosN = []
+          for dat in datosAux:
+              datosN.append(dat.split(','))
+
+          #datos = f.readline().split(',')
+          #print(datos)
+
+          print(self.numAtributos)
+          print(self.numDatos)
+          print(datosN)
 
 
   # TODO: implementar en la pr�ctica 1
