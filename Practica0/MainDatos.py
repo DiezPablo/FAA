@@ -4,7 +4,7 @@
 @author: profesores faa
 """
 
-from Datos import Datos
+from DatosTemplate import Datos
 
-#dataset=Datos('<path-files>/tic-tac-toe.data')
-dataset=Datos('<path-files>/german.data')
+dataset=Datos('/home/aalcala/Escritorio/Informatica/Quinto_Año/FAA/Practicas_FAA/Practica0/ConjuntosDatos/tic-tac-toe.data')
+#dataset=Datos('<path-files>/german.data')
