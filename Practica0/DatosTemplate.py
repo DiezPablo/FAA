@@ -72,7 +72,7 @@ class Datos:
           print(self.numAtributos)
           print(self.numDatos)
           print(self.diccionarios)
-          print(self.datos[0])
+          print(self.datos)
 
 
   # TODO: implementar en la practica 1
