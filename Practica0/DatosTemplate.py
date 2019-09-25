@@ -9,75 +9,57 @@ class Datos:
   def __init__(self, nombreFichero):
 
       with open(nombreFichero, "r") as f:
-          # Guardamos el numero de datos que contiene el DataSet y esta en la primera linea
-          self.numDatos = f.readline()
+        # Guardamos el numero de datos que contiene el DataSet y esta en la primera linea
+        self.numDatos = f.readline()
 
-          # Guardamos el nombre de los atributos
-          self.nombreAtributos = f.readline().split(',')
-          print(self.nombreAtributos)
+        # Guardamos el nombre de los atributos
+        self.nombreAtributos = f.readline().strip('\n').split(',')
+        print(self.nombreAtributos)
 
-          # Eliminamos el ultimo \n que hay en la linea
-          #self.nombreAtributos.pop()
+        # Leemos el tipo de los atributos de las variables y eliminamos el ultimo que es un salto de linea
+        self.tipoAtributos = f.readline().strip('\n').split(',')
+        print(self.tipoAtributos)
 
-          # Leemos el tipo de los atributos de las variables y eliminamos el ultimo que es un salto de linea
-          try:
-              self.tipoAtributos = f.readline().split(',')
-              #self.tipoAtributos.pop()
-              self.nominalAtributos = []
-              for tipo in self.tipoAtributos:
-                  if tipo == self.TiposDeAtributos[0]:
-                      self.nominalAtributos.append(False)
-                  else:
-                      self.nominalAtributos.append(True)
-          except ValueError:
-              print("Error")
+        # Comprobamos que todos los atributos sean Continuos o Nominales
+        if any(atr not in Datos.TiposDeAtributos for atr in self.tipoAtributos):
+            raise ValueError("Tipo de atributo erroneo")
+
+        # Segun el atributo, asignamos True o False.
+        self.nominalAtributos = []
+
+        for tipo in self.tipoAtributos:
+            if tipo == self.TiposDeAtributos[0]:
+                self.nominalAtributos.append(False)
+            else:
+                self.nominalAtributos.append(True)
+        print(self.nominalAtributos)
 
 
-          # Guardamos el numero de atributos
-          self.numAtributos = len(self.nombreAtributos)
+        # Creacion de lista diccionarios, en caso de que el atributo sea Continuo, el diccionario estará vacio
+        self.listaDicts = []
+        for i in range(len(self.tipoAtributos)):
+            self.listaDicts.append({})
+        print(self.listaDicts)
 
-          datosAux = f.readlines()
-          datosN = []
-          for dat in datosAux:
-              datosN.append(dat.split(','))
+        datos = f.readlines()
+        datosFormat = []
+        for lista in datos:
+            datosFormat.append(lista.strip('\n').split(','))
 
-          #datos = f.readline().split(',')
-          #print(datos)
-          j = 0
-          i = 0
-          #k = 0
-          valores = []
-          dic = {}
-          for j in range(self.numAtributos):
-              for i in range(int(self.numDatos)):
-                  if datosN[i][j] not in valores:
-                    valores.append(datosN[i][j])
-          #print(valores)
-          k = 0
-          for valor in valores:
-              dic.update({valor:k})
-              k = k+1
-          #print(dic)
-          self.diccionarios = []
-          i = 0
-          for i in range(self.numAtributos):
-              #print(self.nominalAtributos[i])
-              if self.nominalAtributos[i] == True:
-                  self.diccionarios.append(dic)
-              else:
-                  self.diccionarios.append({})
-          #self.diccionarios.append({'positive\r\n':1, 'negative\r\n':0})
-          self.datos = np.empty((int(self.numDatos),int(self.numAtributos)))
-          print(self.datos.shape)
-          i = 0
-          j = 0
-          for i in range(int(self.numDatos)):
-              for j in range(self.numAtributos):
-                  self.datos[i][j] = self.diccionarios[j].get(str(datosN[i][j]))
-          print(self.numAtributos)
-          print(self.numDatos)
-          print(self.diccionarios)
-          print(self.datos)
+        # print(set(sorted(datosFormat[0])))
+        atributo = []
+        for i in range(len(self.tipoAtributos)):
+            atributo.append([])
+
+        for lista in datosFormat:
+            for lista
+
+
+
+        print(self.listaDicts)
+
+
+
 
 
   # TODO: implementar en la practica 1
