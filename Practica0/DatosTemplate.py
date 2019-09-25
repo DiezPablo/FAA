@@ -61,13 +61,13 @@ class Datos:
         atributos = []
         for i in range(len(self.tipoAtributos)):
             atributos.append([])
+        i = 0
         for item2 in atributo:
-            i = 0
-            atributos[i].append(set(item2[i]))
+            atributos[i].append(set(item2))
             i += 1
 
 
-        print(atributo)
+        #print(atributo)
         print(atributos)
         print(self.listaDicts)
 
