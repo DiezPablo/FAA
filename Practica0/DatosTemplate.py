@@ -51,11 +51,24 @@ class Datos:
         for i in range(len(self.tipoAtributos)):
             atributo.append([])
 
+        print(atributo)
+
         for lista in datosFormat:
-            for lista
+            i = 0
+            for item in lista:
+                atributo[i].append(item)
+                i += 1
+        atributos = []
+        for i in range(len(self.tipoAtributos)):
+            atributos.append([])
+        for item2 in atributo:
+            i = 0
+            atributos[i].append(set(item2[i]))
+            i += 1
 
 
-
+        print(atributo)
+        print(atributos)
         print(self.listaDicts)
 
 
