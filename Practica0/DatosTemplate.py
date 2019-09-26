@@ -27,6 +27,7 @@ class Datos:
         # Segun el atributo, asignamos True o False.
         self.nominalAtributos = []
 
+        # Guardamos en la lista nominalAtributos en la posicion de cada uno si es o no Nominal
         for tipo in self.tipoAtributos:
             if tipo == self.TiposDeAtributos[0]:
                 self.nominalAtributos.append(False)
@@ -77,9 +78,12 @@ class Datos:
             i += 1
 
         # Creacion de la matriz de datos utilizando el diccionario para mapear los valores
+        # En primer lugar, creamos una matriz vacia de tamaña numero de atributos.
         self.datos = np.empty((int(self.numDatos),int(len(self.tipoAtributos))))
         i = 0
         j = 0
+
+        # Metemos los datos en la matriz, mapeando con los diccionarios en el caso de que sean Nominales, y si son continuos normal.
         for i in range(int(self.numDatos)):
             for j in range(len(self.tipoAtributos)):
                 if self.tipoAtributos[j] == 'Nominal':
