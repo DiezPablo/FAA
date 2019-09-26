@@ -82,7 +82,10 @@ class Datos:
         j = 0
         for i in range(int(self.numDatos)):
             for j in range(len(self.tipoAtributos)):
-                self.datos[i][j] = self.listaDicts[j].get(str(datosFormat[i][j]))
+                if self.tipoAtributos[j] == 'Nominal':
+                    self.datos[i][j] = self.listaDicts[j].get(str(datosFormat[i][j]))
+                else:
+                    self.datos[i][j] = datosFormat[i][j]
 
         #print(atributo)
         #print(atributos)
