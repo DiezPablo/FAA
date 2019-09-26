@@ -88,7 +88,7 @@ class Datos:
                     self.datos[i][j] = datosFormat[i][j]
 
         #print(atributo)
-        #print(atributos)
+        print(atributos)
         print(self.datos)
 
 
