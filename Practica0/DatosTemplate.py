@@ -51,7 +51,7 @@ class Datos:
         for i in range(len(self.tipoAtributos)):
             atributo.append([])
 
-        print(atributo)
+        #print(atributo)
 
         for lista in datosFormat:
             i = 0
