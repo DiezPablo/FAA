@@ -70,11 +70,11 @@ class Datos:
         i = 0
         for atributo in listaDatosAtributos:
             k = 0
-            for dato in atributo:
-                self.listaDicts[i][dato] = k
-                k += 1
+            if self.tipoAtributos[i] == "Nominal":
+                for dato in atributo:
+                    self.listaDicts[i][dato] = k
+                    k += 1
             i += 1
-        print(self.listaDicts)
 
         # Creacion de la matriz de datos utilizando el diccionario para mapear los valores
         self.datos = np.empty((int(self.numDatos),int(len(self.tipoAtributos))))
