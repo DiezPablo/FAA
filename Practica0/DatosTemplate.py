@@ -35,7 +35,7 @@ class Datos:
         print(self.nominalAtributos)
 
 
-        # Creacion de lista diccionarios, en caso de que el atributo sea Continuo, el diccionario estará vacio
+        # Creacion de lista diccionarios, en caso de que el atributo sea Continuo, el diccionario estara vacio
         self.listaDicts = []
         for i in range(len(self.tipoAtributos)):
             self.listaDicts.append({})
@@ -63,13 +63,32 @@ class Datos:
             atributos.append([])
         i = 0
         for item2 in atributo:
-            atributos[i].append(set(item2))
+            atributos[i].append(sorted(set(item2)))
             i += 1
 
+        i = 0
+        j = 0
+        m = 0
+        for aux in atributos:
+            k = 0
+            if self.tipoAtributos[i] == 'Nominal':
+                for j in range(len(aux)):
+                    for m in range(len(aux[j])):
+                        self.listaDicts[i].update({aux[j][m]:k})
+                        k += 1
+            i += 1
+
+        self.datos = np.empty((int(self.numDatos),int(len(self.tipoAtributos))))
+        i = 0
+        j = 0
+        for i in range(int(self.numDatos)):
+            for j in range(len(self.tipoAtributos)):
+                self.datos[i][j] = self.listaDicts[j].get(str(datosFormat[i][j]))
 
         #print(atributo)
-        print(atributos)
+        #print(atributos)
         print(self.listaDicts)
+        print(self.datos[0])
 
 
 
