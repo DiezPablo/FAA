@@ -89,7 +89,6 @@ class Datos:
 
         #print(atributo)
         #print(atributos)
-        #print(self.listaDicts)
         print(self.datos)
 
 
