@@ -14,11 +14,11 @@ class Datos:
 
         # Guardamos el nombre de los atributos
         self.nombreAtributos = f.readline().strip('\n').split(',')
-        print(self.nombreAtributos)
+        #print(self.nombreAtributos)
 
         # Leemos el tipo de los atributos de las variables y eliminamos el ultimo que es un salto de linea
         self.tipoAtributos = f.readline().strip('\n').split(',')
-        print(self.tipoAtributos)
+        #print(self.tipoAtributos)
 
         # Comprobamos que todos los atributos sean Continuos o Nominales
         if any(atr not in Datos.TiposDeAtributos for atr in self.tipoAtributos):
@@ -33,7 +33,7 @@ class Datos:
                 self.nominalAtributos.append(False)
             else:
                 self.nominalAtributos.append(True)
-        print(self.nominalAtributos)
+        #print(self.nominalAtributos)
 
         # Guardamos los datos del fichero y los formateamos, de tal forma que cada linea es una lista
         datos = f.readlines()
@@ -91,9 +91,8 @@ class Datos:
                 else:
                     self.datos[i][j] = datosFormat[i][j]
 
-        #print(atributo)
-        #print(atributos)
-        print(self.datos)
+        #print(self.listaDicts)
+        #print(self.datos)
 
 
 
