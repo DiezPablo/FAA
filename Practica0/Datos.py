@@ -93,6 +93,7 @@ class Datos:
 
         #print(self.listaDicts)
         #print(self.datos)
+        print(self.datos[[0,1,2,3]])
 
 
 
