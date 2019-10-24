@@ -4,6 +4,7 @@ import math
 from collections import Counter
 from sortedcontainers import SortedDict
 from Datos import Datos
+from sklearn.metrics import confusion_matrix
 
 
 
@@ -39,6 +40,32 @@ class Clasificador:
     err = (error) / (len(real) + 0.0)
     return err
 
+    #Realiza la amtriz de confusion de las clases reales y de las clases predichas por nuestro
+    #clasificador
+  def matrizConfusion(self, dataset,datosTest,prediccion):
+    tpfn = 0
+    tpfp = 0
+    fptn = 0
+    fntn = 0
+    suma = 0
+    suma2 = 0
+    res = []
+    matriz = np.zeros((len(dataset.listaDicts[-1]), len(dataset.listaDicts[-1])))
+    matriz_test = dataset.extraeDatos(datosTest)
+    real = matriz_test[:,-1]
+    matriz = confusion_matrix(prediccion, real)
+    print(matriz)
+    for i in range(len(dataset.listaDicts[-1])):
+      col = matriz[:,i]
+      for j in range(len(dataset.listaDicts[-1])):
+        suma += col[j]
+      res.append(col/suma)
+      suma = 0
+    print(res)
+    print("TPR:", res[0][0])
+    print("FNR:", res[0][1])
+    print("FPR:", res[1][0])
+    print("TNR:", res[1][1])
   # Realiza una clasificacion utilizando una estrategia de particionado determinada
   # TODO: implementar esta funcion
   def validacion(self, particionado, dataset, clasificador, seed=None):
@@ -60,6 +87,7 @@ class Clasificador:
     if len(particionado.particiones) == 1:
       clasificador.entrenamiento(dataset, particionado.particiones[0].indicesTrain)
       pred = clasificador.clasifica(dataset, particionado.particiones[0].indicesTest)
+      self.matrizConfusion(dataset, particionado.particiones[0].indicesTest, pred)
       ret = self.error(dataset.extraeDatos(particionado.particiones[0].indicesTest), pred)
       if ret > 0:
         return ret
