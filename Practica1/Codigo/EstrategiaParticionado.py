@@ -47,20 +47,18 @@ class ValidacionSimple(EstrategiaParticionado):
   # Devuelve una lista de particiones (clase Particion)
   # TODO: implementar
   def creaParticiones(self, datos, seed=None):
-    np.random.seed(seed)
 
+    np.random.seed(seed)
     self.numeroParticiones = 1
-    indicesAleatorios = []
+
     # Generamos una lista con todos los números de datos aleatorios
     indicesAleatorios = np.random.permutation(int(datos.numDatos))
-    #for i in range(datos.numDatos):
-    #  indicesAleatorios.append(i)
+
     # Creamos la particion, en funcion del porcentaje especificado
     self.particiones = [Particion(indicesAleatorios[:int(datos.numDatos * self.porcentaje)],
                                   indicesAleatorios[int(datos.numDatos * self.porcentaje):])]
 
     return self.particiones
-
 
 class ValidacionCruzada(EstrategiaParticionado):
 

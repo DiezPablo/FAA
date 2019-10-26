@@ -3,9 +3,8 @@ import numpy as np
 import math
 from collections import Counter
 from sortedcontainers import SortedDict
-from Datos import Datos
-from sklearn.metrics import confusion_matrix
-
+from sklearn.metrics import confusion_matrix, auc
+from matplotlib import pyplot as plt
 
 
 class Clasificador:
@@ -40,32 +39,6 @@ class Clasificador:
     err = (error) / (len(real) + 0.0)
     return err
 
-    #Realiza la amtriz de confusion de las clases reales y de las clases predichas por nuestro
-    #clasificador
-  def matrizConfusion(self, dataset,datosTest,prediccion):
-    tpfn = 0
-    tpfp = 0
-    fptn = 0
-    fntn = 0
-    suma = 0
-    suma2 = 0
-    res = []
-    matriz = np.zeros((len(dataset.listaDicts[-1]), len(dataset.listaDicts[-1])))
-    matriz_test = dataset.extraeDatos(datosTest)
-    real = matriz_test[:,-1]
-    matriz = confusion_matrix(prediccion, real)
-    print(matriz)
-    for i in range(len(dataset.listaDicts[-1])):
-      col = matriz[:,i]
-      for j in range(len(dataset.listaDicts[-1])):
-        suma += col[j]
-      res.append(col/suma)
-      suma = 0
-    print(res)
-    print("TPR:", res[0][0])
-    print("FNR:", res[0][1])
-    print("FPR:", res[1][0])
-    print("TNR:", res[1][1])
   # Realiza una clasificacion utilizando una estrategia de particionado determinada
   # TODO: implementar esta funcion
   def validacion(self, particionado, dataset, clasificador, seed=None):
@@ -87,7 +60,6 @@ class Clasificador:
     if len(particionado.particiones) == 1:
       clasificador.entrenamiento(dataset, particionado.particiones[0].indicesTrain)
       pred = clasificador.clasifica(dataset, particionado.particiones[0].indicesTest)
-      self.matrizConfusion(dataset, particionado.particiones[0].indicesTest, pred)
       ret = self.error(dataset.extraeDatos(particionado.particiones[0].indicesTest), pred)
       if ret > 0:
         return ret
@@ -106,6 +78,37 @@ class Clasificador:
       # Devolucion de la media de los errores
       return error
 
+  def matrizConfusion(self, dataset, datosTest, prediccion):
+    # Calculamos la matriz de confusion utlizando sk-learn. Solo se calcula en el caso de que la clasificacion sea binaria.
+    testData = dataset.extraeDatos(datosTest)
+    clase_real = testData[:, -1]
+
+    return confusion_matrix(prediccion, clase_real)
+
+  # FALTAAAA
+  def curva_roc(self,matriz):
+
+    # La funcion ravel() devuelve todas las estadisticas relacionadas con la matriz de confusion
+    tn, fp, fn, tp = matriz.ravel()
+    print(matriz)
+    # Calculamos las tasas extraídas de la matriz de confusión
+    tpr = tp/(tp+fn)
+    fpr = fp/(fp+fn)
+    fnr = fn/(fn+tp)
+    tnr = tn/(fp+tn)
+
+    # Imprimimos las tasas.
+    print("TPR = " , tpr)
+    print("FPR = " , fpr)
+    print("FNR = " , fnr)
+    print("TNR = " , tnr)
+
+    # Pinta una recta con pendiente 1 en el eje X,Y
+    x = np.linspace(0, 1, 100)
+    plt.plot(x, x, c='red', linestyle='dashed')
+
+
+    plt.show()
 
 class ClasificadorNaiveBayes(Clasificador):
 
@@ -120,6 +123,7 @@ class ClasificadorNaiveBayes(Clasificador):
 
     # Contamos las apariciones de cada uno para luego calcular la probabilidad a priori de cada clase
     counter = Counter(self.numClases)
+
     # Calculamos la probabilidad de la clase y lo metemos en un diccionario ordenado segun el numero
     # correspondiente a cada clase asignado en el diccionario
     self.dictPrioris = {}
@@ -130,7 +134,7 @@ class ClasificadorNaiveBayes(Clasificador):
 
     # Aqui ordenamos el diccionario para que esten en el mismo orden de como extraemos los datos del dataset
     self.dictPrioris = SortedDict(self.dictPrioris)
-    print(self.dictPrioris)
+
     # Calcular tablas de probabilidades del entrenamiento. Tenemos que calcular por cada atributo una cuenta
     # de las apariciones en cada clase
     # Creamos una lista de matrices, donde vamos almacenar todos los datos que hemos obtenido en los datos de Test
@@ -172,6 +176,7 @@ class ClasificadorNaiveBayes(Clasificador):
           post[1][c] = np.std(datos)
         self.posteriori[i] = post
 
+
     # Calculamos los valores de los posteriori de todos las tablas anteriores
     for i in range(len(dataset.listaDicts) - 1):
       if dataset.nominalAtributos[i] == True:
@@ -181,9 +186,7 @@ class ClasificadorNaiveBayes(Clasificador):
 
 
   def clasifica(self, dataset, datosTest):
-    j = 0
-    aux = 1
-    aux2 = 1
+    acum_probs = 1
     self.prediccion = []
     datTest = dataset.extraeDatos(datosTest)
 
@@ -197,8 +200,8 @@ class ClasificadorNaiveBayes(Clasificador):
         # Aqui obtenemos cada valor posteriori de nuestro entrenamiento de los datos, es decir, P(D|H)
         for atributo in range(len(self.posteriori)):
           if dataset.nominalAtributos[atributo] == True:
-            aux = self.posteriori[atributo][int(dato[atributo])][clase]
-            listaVerosimilitudes.append(aux)
+            prob = self.posteriori[atributo][int(dato[atributo])][clase]
+            listaVerosimilitudes.append(prob)
 
           # Aqui obtenemos la probabilidad de los atibutos continuos
           else:
@@ -208,18 +211,18 @@ class ClasificadorNaiveBayes(Clasificador):
             exp3 = np.power(self.posteriori[atributo][1][clase], 2)
             exp4 = exp2 / exp3
             exp4 = math.exp((-1 / 2) * exp4)
-            aux = exp1 * exp4
-            listaVerosimilitudes.append(aux)
+            prob = exp1 * exp4
+            listaVerosimilitudes.append(prob)
 
         for verosimilitud in listaVerosimilitudes:
-          aux2 *= verosimilitud
-        aux2 *= self.dictPrioris.get(clase)
-        mapa.append(aux2)
-        aux2 = 1
+          acum_probs *= verosimilitud
+        acum_probs *= self.dictPrioris.get(clase)
+        mapa.append(acum_probs)
+        acum_probs = 1
 
       # Aqui obtenemos la predicción de mayor probabilidad y la guardamos en nuestra lista de predicciones
       self.prediccion.append(np.argmax(mapa))
 
-    print(self.prediccion)
+
     # Devolvemos la lista con la predicción de nuestro clasifica
     return self.prediccion
