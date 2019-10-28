@@ -41,7 +41,7 @@ class Clasificador:
 
   # Realiza una clasificacion utilizando una estrategia de particionado determinada
   # TODO: implementar esta funcion
-  def validacion(self, particionado, dataset, clasificador, seed=None):
+  def validacion(self, particionado: object, dataset: object, clasificador: object, seed: object = None) -> object:
 
     # Creamos las particiones siguiendo la estrategia llamando a particionado.creaParticiones
     # - Para validacion cruzada: en el bucle hasta nv entrenamos el clasificador con la particion de train i
@@ -79,41 +79,42 @@ class Clasificador:
       return error
 
   def matrizConfusion(self, dataset, datosTest, prediccion):
+
     # Calculamos la matriz de confusion utlizando sk-learn. Solo se calcula en el caso de que la clasificacion sea binaria.
     testData = dataset.extraeDatos(datosTest)
     clase_real = testData[:, -1]
 
-    return confusion_matrix(prediccion, clase_real)
-
-  # FALTAAAA
-  def curva_roc(self,matriz):
+    matriz = confusion_matrix(prediccion, clase_real)
 
     # La funcion ravel() devuelve todas las estadisticas relacionadas con la matriz de confusion
     tn, fp, fn, tp = matriz.ravel()
-    print(matriz)
+
+
     # Calculamos las tasas extraídas de la matriz de confusión
-    tpr = tp/(tp+fn)
-    fpr = fp/(fp+fn)
-    fnr = fn/(fn+tp)
-    tnr = tn/(fp+tn)
+    tpr = tp / (tp + fn)
+    fpr = fp / (fp + fn)
 
-    # Imprimimos las tasas.
-    print("TPR = " , tpr)
-    print("FPR = " , fpr)
-    print("FNR = " , fnr)
-    print("TNR = " , tnr)
+    self.lista_tpr.append(tpr)
+    self.lista_fpr.append(fpr)
 
-    # Pinta una recta con pendiente 1 en el eje X,Y
+
+    return matriz
+
+  def curvaROC(self):
+
     x = np.linspace(0, 1, 100)
-    plt.plot(x, x, c='red', linestyle='dashed')
-
-
+    plt.plot(x, x, c='blue')
+    for i in range(len(self.lista_fpr)):
+        plt.plot(self.lista_fpr[i],self.lista_tpr[i],'ro')
     plt.show()
+
 
 class ClasificadorNaiveBayes(Clasificador):
 
   def __init__(self, laplace):
     self.laplace = laplace
+    self.lista_fpr = []
+    self.lista_tpr = []
 
   def entrenamiento(self, dataset, datosTrain):
 

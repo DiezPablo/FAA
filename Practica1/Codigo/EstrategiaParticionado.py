@@ -100,6 +100,3 @@ class ValidacionCruzada(EstrategiaParticionado):
         particionTrain = np.delete(train, (datos.numDatos - tamBloque) - i - 1)
         datosSobran -= 1
         self.particiones.append(Particion(particionTrain, particionTest))
-
-
-

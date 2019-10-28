@@ -88,8 +88,8 @@ class Datos:
                     else:
                         self.datos[i][j] = datosFormat[i][j]
 
-            #print(self.nombreAtributos)
-            #print(self.listaDicts)
+            print(self.nombreAtributos)
+            print(self.listaDicts)
             f.close()
 
     # TODO: implementar en la practica 1
