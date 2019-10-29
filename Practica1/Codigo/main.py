@@ -9,7 +9,7 @@ from sklearnNB import validacion_cruzada_sklearn,validacion_simple_sklearn,nb_sk
 
 def main():
 
-    dataset = Datos('tic-tac-toe.data')
+    dataset = Datos('../Datasets/tic-tac-toe.data')
     #estrategia = ValidacionSimple(0.7)
     #estrategia.creaParticiones(dataset)
     #estrategia = ValidacionCruzada(4)
@@ -36,7 +36,7 @@ def main():
     # NB SK Cross Val
     #predict = nb_sklearn_validacion_cruzada(X_train, y_train, 4)
     #print(1-np.mean(predict))
-
+    
 
     estrategia = ValidacionCruzada(4)
     nb = ClasificadorNaiveBayes(True)
@@ -46,7 +46,7 @@ def main():
         pred = nb.clasifica(dataset,particion.indicesTest)
         matriz = nb.matrizConfusion(dataset, particion.indicesTest,pred)
 
-    nb.curvaROC()
+    #nb.curvaROC()
 
 
 
