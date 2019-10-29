@@ -97,7 +97,6 @@ class Clasificador:
     self.lista_tpr.append(tpr)
     self.lista_fpr.append(fpr)
 
-
     return matriz
 
   def curvaROC(self):

@@ -32,7 +32,7 @@ class Datos:
                     self.nominalAtributos.append(False)
                 else:
                     self.nominalAtributos.append(True)
-            # print(self.nominalAtributos)
+
 
             # Guardamos los datos del fichero y los formateamos, de tal forma que cada linea es una lista
             datos = f.readlines()
@@ -40,7 +40,6 @@ class Datos:
             for lista in datos:
                 datosFormat.append(lista.strip('\n').split(','))
 
-            # print(set(sorted(datosFormat[0])))
             listaDatosAtributos = []
             for i in range(len(self.tipoAtributos)):
                 listaDatosAtributos.append([])
@@ -88,8 +87,6 @@ class Datos:
                     else:
                         self.datos[i][j] = datosFormat[i][j]
 
-            print(self.nombreAtributos)
-            print(self.listaDicts)
             f.close()
 
     # TODO: implementar en la practica 1
