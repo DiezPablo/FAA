@@ -3,7 +3,7 @@ import numpy as np
 import math
 from collections import Counter
 from sortedcontainers import SortedDict
-from sklearn.metrics import confusion_matrix, auc
+from sklearn.metrics import confusion_matrix
 from matplotlib import pyplot as plt
 
 

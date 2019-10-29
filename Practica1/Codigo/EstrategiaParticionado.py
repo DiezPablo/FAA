@@ -1,9 +1,8 @@
 from abc import ABCMeta,abstractmethod
 
 from abc import ABCMeta, abstractmethod
-from Datos import Datos
 import numpy as np
-import random
+
 
 
 class Particion():

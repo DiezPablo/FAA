@@ -3,6 +3,9 @@ from sklearn.model_selection import train_test_split, cross_val_score, KFold, cr
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.naive_bayes import GaussianNB
 from EstrategiaParticionado import Particion
+from sklearn.metrics import confusion_matrix
+from matplotlib import pyplot as plt
+
 def validacion_simple_sklearn(dataset, porcentaje):
 
     # Matriz con los atributos
@@ -35,6 +38,7 @@ def validacion_cruzada_sklearn(dataset, k):
 
 def nb_sklearn(x_train, y_train, x_test, tipo="Multinomial"):
 
+    # Permitimos la creación de los dos tipos de clasificadores NB que tiene SKLearn
     if tipo == "Gaussian":
         clf = GaussianNB(alpha=1.0)
 
@@ -54,11 +58,31 @@ def nb_sklearn(x_train, y_train, x_test, tipo="Multinomial"):
 
 def nb_sklearn_validacion_cruzada(x_train, y_train, k):
 
+    # En el caso de la validacion cruzada solo utilizamos la Multinomial
     clf = MultinomialNB(alpha = 1.0, fit_prior = True, class_prior = None)
 
-    error = cross_val_score(clf, x_train, y_train, cv = k)
+    acierto = cross_val_score(clf, x_train, y_train, cv = k)
 
-    return error
+    return acierto
+
+def matriz_confusion_sklearn(prediccion, clase_real):
+
+    matriz = confusion_matrix(clase_real,prediccion)
+    tn, fp, fn, tp = matriz.ravel()
+
+    # Calculamos las tasas extraídas de la matriz de confusión
+    tpr = tp / (tp + fn)
+    fpr = fp / (fp + fn)
+
+    return matriz, tpr, fpr
+
+
+def curvaROC_sklearn(fpr,tpr):
+
+    x = np.linspace(0, 1, 100)
+    plt.plot(x, x, c='blue')
+    plt.plot(fpr, tpr, 'ro')
+    plt.show()
 
 def error(clases_predichas, clases_reales):
 
