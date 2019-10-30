@@ -1,0 +1,1 @@
+Se encuentra todo el código necesario para la ejecución dentro del propio "Jupyter Notebook", a excepción de la clase "Datos.py", que es la misma que entregamos en la P0.
