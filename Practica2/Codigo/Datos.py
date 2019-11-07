@@ -93,6 +93,7 @@ class Datos:
     def extraeDatos(self, idx):
         return self.datos[idx]
 
+
     def calcularMediasDesv(self,datos):
 
         # datosTrain es la matriz directamente, no hay que extraer nada

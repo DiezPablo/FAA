@@ -11,11 +11,8 @@ def main():
 
     dataset = Datos('example1.data')
 
-    knn = ClasificadorVecinosProximos(3)
-    estrategia = ValidacionSimple(0.7)
-    estrategia.creaParticiones(dataset)
-
-    knn.entrenamiento(dataset, estrategia.particiones[0].indicesTrain)
+    print(dataset.datos)
+    print(dataset.datos[:, :-1])
 
     #print(esta)
     #print(dataNorm)
