@@ -221,12 +221,35 @@ class ClasificadorNaiveBayes(Clasificador):
     # Devolvemos la lista con la predicción de nuestro clasifica
     return self.prediccion
 
-  class ClasificadorVecinosProximos(Clasificador):
+class ClasificadorVecinosProximos(Clasificador):
 
-    def __init__(self, k, normaliza = True):
+  def __init__(self, k, normaliza = True):
 
-      self.k = k
-      self.normaliza = normaliza
+    self.k = k
+    self.normaliza = normaliza
 
-      super().__init__()
+    super().__init__()
+
+  def entrenamiento(self, dataset, datosTrain):
+
+    # Normalizar los datos en caso de que la variable sea True
+    if self.normaliza == True:
+      self.datosClasifica, _ = dataset.normalizarDatos(dataset.datos)
+    else:
+      self.datosClasifica = dataset.datos
+
+    self.datTrain = self.datosClasifica[datosTrain]
+
+    return self.datTrain
+
+  def clasifica(self, dataset, datosTest):
+
+
+
+    return 1
+
+
+
+
+
 

@@ -104,7 +104,6 @@ class Datos:
             if self.nominalAtributos[i] == False:
                 self.indicesContinuos.append(i)
 
-        print(len(self.nominalAtributos))
         # Matriz que guarda el valor por atributo de la desv. tipica y la media
         estadisticas = np.zeros((2,len(self.nominalAtributos)))
 
