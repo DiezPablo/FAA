@@ -6,7 +6,7 @@ from sortedcontainers import SortedDict
 from sklearn.metrics import confusion_matrix
 from matplotlib import pyplot as plt
 from numpy import linalg as LA
-
+from statistics import mode
 
 class Clasificador:
   # Clase abstracta
@@ -246,22 +246,25 @@ class ClasificadorVecinosProximos(Clasificador):
   def clasifica(self, dataset, datosTest):
 
     datTest = self.datosClasifica[datosTest]
-    distancias = []
-    
+    prediccion = []
+
     # Cogemos cada ejemplo en datosTest para calcular la distancia a cada uno de los ejemplos de Train
     for datoTest in datTest[:, :-1]:
-      for datoTrain in self.datTrain[:,:,-1]:
+      distancias = []
+      for datoTrain in self.datTrain[:, :-1]:
         sumatorio_dist_euclideas = 0
         for i in range(len(datoTest)):
-          sumatorio_dist_euclideas += LA.linalg(datoTest[i] - datoTrain[i])
+          sumatorio_dist_euclideas += LA.linalg.norm(datoTest[i] - datoTrain[i])
         distancias.append(sumatorio_dist_euclideas)
 
+      k_datos = self.datTrain[np.argsort(distancias)[-self.k:]]
+      prediccion.append(mode(k_datos[:,-1]))
+
+
+    return prediccion
 
 
 
-
-
-    return 1
 
 
 

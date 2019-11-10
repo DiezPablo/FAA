@@ -10,13 +10,13 @@ from sklearnNB import validacion_cruzada_sklearn,validacion_simple_sklearn,nb_sk
 def main():
 
     dataset = Datos('example1.data')
+    estrategia = ValidacionSimple(0.7)
+    estrategia.creaParticiones(dataset)
 
-    print(dataset.datos)
-    print(dataset.datos[:, :-1])
-
-    #print(esta)
-    #print(dataNorm)
-
+    knn = ClasificadorVecinosProximos(3)
+    knn.entrenamiento(dataset, estrategia.particiones[0].indicesTrain)
+    pred = knn.clasifica(dataset,estrategia.particiones[0].indicesTest)
+    print(pred)
 
 if __name__ == "__main__":
     main()
