@@ -263,10 +263,72 @@ class ClasificadorVecinosProximos(Clasificador):
 
     return prediccion
 
+class ClasificadorRegresionLogistica(Clasificador):
 
+  def __init__(self, constante_aprendizaje, epocas):
 
+    self.constante_aprendizaje = constante_aprendizaje
+    self.epocas = epocas
 
+    super().__init__()
 
+  def sigmoidal(self, a):
+
+    if a >= 100:
+      return 1
+    elif a < 100:
+      return 0
+    else:
+      return 1.0 / (1.0 + math.exp(-a))
+
+  def entrenamiento(self, dataset, datosTrain):
+
+    # Datos de entrenamiento
+    self.datTrain = dataset.extraeDatos(datosTrain)
+
+    # Inicializamos el vector w
+    self.vector_w = np.random.uniform(low=-0.5, high=0.5, size=len(dataset.tipoAtributos))
+    i = 0
+    while i < self.epocas:
+      for dato in self.datTrain:
+
+        # Calculamos vector x
+        x = np.append([1],dato[:-1])
+
+        # Calculamos w.x
+        wx = np.dot(self.vector_w,x)
+
+        # Sigmoidal de w.x
+        sigmoidal = self.sigmoidal(wx)
+
+        # Actualizamos el vector w
+        self.vector_w = self.vector_w - (np.dot(self.constante_aprendizaje * (sigmoidal - dato[-1]),x))
+
+      i += 1
+
+    return self.vector_w
+
+  def clasifica(self, dataset, datosTest):
+
+    datTest = dataset.extraeDatos(datosTest)
+    prediccion = []
+
+    for dato in datTest:
+
+      # Vector x
+      x = np.append([1], dato[:-1])
+
+      # Calculo de la sigmoidal que nos da la probabilidad de que el dato sea de clase 1
+      wx = np.dot(self.vector_w, x)
+      sigmoidal = self.sigmoidal(wx)
+
+      # Prediccion del clasificador
+      if(sigmoidal >= 0.5):
+        prediccion.append(1)
+      else:
+        prediccion.append(0)
+
+    return prediccion
 
 
 
