@@ -260,7 +260,6 @@ class ClasificadorVecinosProximos(Clasificador):
       k_datos = self.datTrain[np.argsort(distancias)[-self.k:]]
       prediccion.append(mode(k_datos[:,-1]))
 
-
     return prediccion
 
 class ClasificadorRegresionLogistica(Clasificador):
