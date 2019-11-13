@@ -257,7 +257,7 @@ class ClasificadorVecinosProximos(Clasificador):
           sumatorio_dist_euclideas += LA.linalg.norm(datoTest[i] - datoTrain[i])
         distancias.append(sumatorio_dist_euclideas)
 
-      k_datos = self.datTrain[np.argsort(distancias)[-self.k:]]
+      k_datos = self.datTrain[np.argsort(distancias)[:self.k]]
       prediccion.append(mode(k_datos[:,-1]))
 
     return prediccion
