@@ -9,13 +9,13 @@ from plotModel import plotModel
 
 def main():
 
-    dataset = Datos('example1.data')
-    estrategia = ValidacionSimple(1.0)
+    dataset = Datos('example4.data')
+    estrategia = ValidacionSimple(0.7)
     estrategia.creaParticiones(dataset)
 
     knn = ClasificadorVecinosProximos(3)
-    #knn.entrenamiento(dataset, estrategia.particiones[0].indicesTrain)
-    #pred = knn.clasifica(dataset,estrategia.particiones[0].indicesTest)
+    knn.entrenamiento(dataset, estrategia.particiones[0].indicesTrain)
+    #pred = knn.clasifica(dataset.datos,estrategia.particiones[0].indicesTest)
     #print(pred)
     #error = knn.error(dataset.extraeDatos(estrategia.particiones[0].indicesTest), pred)
     #print(error)
@@ -23,7 +23,7 @@ def main():
     x = dataset.datos[estrategia.particiones[0].indicesTrain, 0]
     y = dataset.datos[estrategia.particiones[0].indicesTrain, 1]
     clase = dataset.datos[estrategia.particiones[0].indicesTrain, -1] != 0
-    plotModel(x, y, clase, knn, "title", dataset)
+    plotModel(x, y, clase, knn, "title")
 
     #logistic_reg = ClasificadorRegresionLogistica(0.1,100)
     #logistic_reg.entrenamiento(dataset,estrategia.particiones[0].indicesTrain)

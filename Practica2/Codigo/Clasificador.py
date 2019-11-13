@@ -226,6 +226,7 @@ class ClasificadorVecinosProximos(Clasificador):
 
   def __init__(self, k, normaliza = True):
 
+    # k define el numero de vecinos y normaliza si queremos normalizar los datos o no.
     self.k = k
     self.normaliza = normaliza
 
@@ -239,13 +240,20 @@ class ClasificadorVecinosProximos(Clasificador):
     else:
       self.datosClasifica = dataset.datos
 
+    # Datos de train
     self.datTrain = self.datosClasifica[datosTrain]
 
     return self.datTrain
 
-  def clasifica(self, dataset, datosTest):
+  def clasifica(self, dataset, datosTest = None):
 
-    datTest = self.datosClasifica[datosTest]
+    if datosTest is None:
+      datTest = dataset[range(len(dataset))]
+    else:
+      datTest = self.datosClasifica[datosTest]
+
+
+
     prediccion = []
 
     # Cogemos cada ejemplo en datosTest para calcular la distancia a cada uno de los ejemplos de Train
@@ -262,15 +270,17 @@ class ClasificadorVecinosProximos(Clasificador):
 
     return prediccion
 
+# Clase que define un clasificador utilizando el metodo de Regresion Logistica
 class ClasificadorRegresionLogistica(Clasificador):
 
   def __init__(self, constante_aprendizaje, epocas):
-
+    # Se utiliza para inicializar la constante de aprendizaje y el numero de epocas necesarias para el train
     self.constante_aprendizaje = constante_aprendizaje
     self.epocas = epocas
 
     super().__init__()
 
+  # Funcion que realiza el calculo de la sigmoidal de el numero que recibe por parámetro
   def sigmoidal(self, a):
 
     if a >= 100:
@@ -287,7 +297,10 @@ class ClasificadorRegresionLogistica(Clasificador):
 
     # Inicializamos el vector w
     self.vector_w = np.random.uniform(low=-0.5, high=0.5, size=len(dataset.tipoAtributos))
+
     i = 0
+
+    # Algoritmo del entrenamiento de regresion lineal
     while i < self.epocas:
       for dato in self.datTrain:
 
@@ -307,9 +320,12 @@ class ClasificadorRegresionLogistica(Clasificador):
 
     return self.vector_w
 
-  def clasifica(self, dataset, datosTest):
+  def clasifica(self, dataset, datosTest = None):
 
-    datTest = dataset.extraeDatos(datosTest)
+    if datosTest is None:
+      datosTest = range(len(dataset))
+
+    datTest = dataset[datosTest]
     prediccion = []
 
     for dato in datTest:
