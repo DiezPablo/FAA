@@ -229,7 +229,8 @@ class ClasificadorVecinosProximos(Clasificador):
     # k define el numero de vecinos y normaliza si queremos normalizar los datos o no.
     self.k = k
     self.normaliza = normaliza
-
+    self.lista_fpr = []
+    self.lista_tpr = []
     super().__init__()
 
   def entrenamiento(self, dataset, datosTrain):
@@ -275,7 +276,8 @@ class ClasificadorRegresionLogistica(Clasificador):
     # Se utiliza para inicializar la constante de aprendizaje y el numero de epocas necesarias para el train
     self.constante_aprendizaje = constante_aprendizaje
     self.epocas = epocas
-
+    self.lista_fpr = []
+    self.lista_tpr = []
     super().__init__()
 
   # Funcion que realiza el calculo de la sigmoidal de el numero que recibe por parámetro

@@ -9,7 +9,7 @@ from plotModel import plotModel
 
 def main():
 
-    dataset = Datos('online_shoppers.data')
+    dataset = Datos('example1.data')
     estrategia = ValidacionSimple(0.7)
     estrategia.creaParticiones(dataset)
 
@@ -29,8 +29,11 @@ def main():
     logistic_reg.entrenamiento(dataset,estrategia.particiones[0].indicesTrain)
     pred = logistic_reg.clasifica(dataset.datos,estrategia.particiones[0].indicesTest)
     print(pred)
-    print(logistic_reg.error(dataset.extraeDatos(estrategia.particiones[0].indicesTest),pred))
-
+    error = logistic_reg.error(dataset.extraeDatos(estrategia.particiones[0].indicesTest),pred)
+    print(error)
+    matriz = logistic_reg.matrizConfusion(dataset,estrategia.particiones[0].indicesTest,pred)
+    print(matriz)
+    logistic_reg.curvaROC()
 
     #X_train, X_test, y_train, y_test = validacion_simple_sklearn(dataset, 0.7)
     #pred = knn_val_simple(X_train, y_train, X_test, 3)
