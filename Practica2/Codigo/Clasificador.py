@@ -252,8 +252,6 @@ class ClasificadorVecinosProximos(Clasificador):
     else:
       datTest = self.datosClasifica[datosTest]
 
-
-
     prediccion = []
 
     # Cogemos cada ejemplo en datosTest para calcular la distancia a cada uno de los ejemplos de Train

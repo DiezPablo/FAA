@@ -9,28 +9,27 @@ from plotModel import plotModel
 
 def main():
 
-    dataset = Datos('example4.data')
+    dataset = Datos('online_shoppers.data')
     estrategia = ValidacionSimple(0.7)
     estrategia.creaParticiones(dataset)
 
-    knn = ClasificadorVecinosProximos(3)
-    knn.entrenamiento(dataset, estrategia.particiones[0].indicesTrain)
+    #knn = ClasificadorVecinosProximos(3)
+    #knn.entrenamiento(dataset, estrategia.particiones[0].indicesTrain)
     #pred = knn.clasifica(dataset.datos,estrategia.particiones[0].indicesTest)
     #print(pred)
     #error = knn.error(dataset.extraeDatos(estrategia.particiones[0].indicesTest), pred)
     #print(error)
 
-    x = dataset.datos[estrategia.particiones[0].indicesTrain, 0]
-    y = dataset.datos[estrategia.particiones[0].indicesTrain, 1]
-    clase = dataset.datos[estrategia.particiones[0].indicesTrain, -1] != 0
-    plotModel(x, y, clase, knn, "title")
+    #x = dataset.datos[estrategia.particiones[0].indicesTrain, 0]
+    #y = dataset.datos[estrategia.particiones[0].indicesTrain, 1]
+    #clase = dataset.datos[estrategia.particiones[0].indicesTrain, -1] != 0
+    #plotModel(x, y, clase, knn, "title")
 
-    #logistic_reg = ClasificadorRegresionLogistica(0.1,100)
-    #logistic_reg.entrenamiento(dataset,estrategia.particiones[0].indicesTrain)
-    #pred = logistic_reg.clasifica(dataset,estrategia.particiones[0].indicesTest)
-    #print(pred)
-    #error = logistic_reg.error(dataset.extraeDatos(estrategia.particiones[0].indicesTest),pred)
-    #print(error)
+    logistic_reg = ClasificadorRegresionLogistica(0.5,250)
+    logistic_reg.entrenamiento(dataset,estrategia.particiones[0].indicesTrain)
+    pred = logistic_reg.clasifica(dataset.datos,estrategia.particiones[0].indicesTest)
+    print(pred)
+    print(logistic_reg.error(dataset.extraeDatos(estrategia.particiones[0].indicesTest),pred))
 
 
     #X_train, X_test, y_train, y_test = validacion_simple_sklearn(dataset, 0.7)
@@ -68,3 +67,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print(error)
