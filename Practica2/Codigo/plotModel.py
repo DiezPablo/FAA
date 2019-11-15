@@ -18,6 +18,7 @@ def plotModel(x, y, clase, clf, title):
     if isinstance(clf, Clasificador.Clasificador):
         zeros = np.zeros(len(xx.ravel()))
         pred = clf.clasifica(np.c_[xx.ravel(), yy.ravel(), zeros])
+        print(pred)
         z = np.array(pred)
         # z = clf.clasifica(np.c_[xx.ravel(), yy.ravel()], [False, False, True], diccionarios)
     elif hasattr(clf, "decision_function"):

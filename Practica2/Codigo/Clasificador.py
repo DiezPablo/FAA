@@ -231,6 +231,7 @@ class ClasificadorVecinosProximos(Clasificador):
     self.normaliza = normaliza
     self.lista_fpr = []
     self.lista_tpr = []
+
     super().__init__()
 
   def entrenamiento(self, dataset, datosTrain):
@@ -278,6 +279,7 @@ class ClasificadorRegresionLogistica(Clasificador):
     self.epocas = epocas
     self.lista_fpr = []
     self.lista_tpr = []
+
     super().__init__()
 
   # Funcion que realiza el calculo de la sigmoidal de el numero que recibe por parámetro
@@ -344,7 +346,3 @@ class ClasificadorRegresionLogistica(Clasificador):
         prediccion.append(0)
 
     return prediccion
-
-
-
-

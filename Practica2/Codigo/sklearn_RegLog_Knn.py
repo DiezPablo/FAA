@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.metrics import confusion_matrix
 from matplotlib import pyplot as plt
 
@@ -57,7 +57,7 @@ def error(clases_predichas, clases_reales):
 
 def regresionLog_val_simple(x_train, y_train, x_test):
 
-    logistic_regression = LogisticRegression(solver = 'lbfgs')
+    logistic_regression = LogisticRegression(max_iter = 1000000, solver = 'lbfgs')
     logistic_regression.fit(x_train, y_train)
     predicciones = logistic_regression.predict(x_test)
 
@@ -65,7 +65,7 @@ def regresionLog_val_simple(x_train, y_train, x_test):
 
 def regresionLog_val_cruzada(x_train, y_train, k):
 
-    logistic_regression = LogisticRegression(solver = 'lbfgs')
+    logistic_regression = LogisticRegression(max_iter= 1000000, solver = 'lbfgs')
 
     acierto = cross_val_score(logistic_regression, x_train, y_train, cv=k)
 
