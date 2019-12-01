@@ -1,5 +1,6 @@
 from Clasificador import Clasificador
 import random
+import numpy as np
 
 class ClasificadorAlgoritmoGenetico(Clasificador):
 
@@ -15,20 +16,39 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
     # Diccionario que va a almacenar todos los individuos que van a componer la poblacion
     self.individuos = {}
 
-    # Calculamos la longitud de la regla que se va a generar.
-    longitud_regla = 0
-    for dict in dataset.listaDicts:
-      longitud_regla += len(dict)
+    # Calculamos la longitud de la regla que se va a generar y los intervalos dentro la regla que hacen referencia a cada atributo.
+    self.listaDictsIntervalos = {}
+
+    for i in range(len(dataset.listaDicts)):
 
 
 
-    # Creacion de reglas aleatorias para cada individuo, van a estar inicializados con un max de 6 y un minimo de 2
-    for individuo in range(self.numIndividuos):
-      num_reglas = random.randint(2, self.maxReglas)
-
-      #for regla in range(num_reglas):
 
   def generar_regla(self, longitud_regla):
-    return
+
+    i = 0
+    print(i)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

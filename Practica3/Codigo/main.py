@@ -5,12 +5,11 @@ import random
 
 def main():
     dataset = Datos("ejemplo1.data")
-
     clf = ClasificadorAlgoritmoGenetico(10, 10)
 
     clf.generar_poblacion(dataset)
 
-    print(random.randint(2))
+
 
 if __name__ == "__main__":
     main()
