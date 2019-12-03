@@ -6,11 +6,11 @@ import operator
 
 class ClasificadorAlgoritmoGenetico(Clasificador):
 
-    def __init__(self, numGeneraciones, numIndividuos, maxReglas = 6, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85):
+    def __init__(self, numGeneraciones, numIndividuos, numReglas = 6, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85):
 
         self.numGeneraciones = numGeneraciones
         self.numIndividuos = numIndividuos
-        self.maxReglas = maxReglas
+        self.numReglas = numReglas
         self.probabilidadMutacion = probabilidadMutacion
         self.elitismo = elitismo
         self.probabilidadCruce = probabilidadCruce
@@ -24,6 +24,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         # Calculamos la longitud de la regla que se va a generar y los intervalos dentro la regla que hacen referencia a cada atributo.
         self.listaDictsIntervalos = np.array([])
 
+        # Hacemos un random del numero de reglas, pero todos los individuos tendran el mismo
         longitud_regla = 0
         for i in range(len(dataset.listaDicts)):
             dict ={}
@@ -38,12 +39,10 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
             # Diccionario que forma el individuo, con su num_reglas, la lista de reglas que lo componen y el fitness
             individuo = {}
-            num_reglas = np.random.randint(2, self.maxReglas)
             individuo['fitness'] = - 1
-            individuo['probabilidad_seleccion'] = 0.0
-            individuo['num_reglas'] = num_reglas
+            individuo['num_reglas'] = self.num_reglas
             individuo['reglas'] = []
-            for regla in range(num_reglas):
+            for regla in range(self.num_reglas):
                 individuo['reglas'].append(self.generar_regla(longitud_regla))
 
             self.poblacion = np.append(self.poblacion, individuo)
@@ -84,26 +83,74 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         return self.poblacion
 
-    def operador_cruce(self, progenitores):
-        individuo1 = {}
-        individuo2 = {}
+    def operador_cruce(self):
+        """ Funcion que genera el cruce de dos individuos en caso deque supere la probabilidad definida."""
+        # Seleccionamos los progenitores
+        progenitores = self.seleccion_progenitores()
 
-        # Primero ordenamos la poblacion en base a su probabilidad de seleccion
-        self.poblacion.sort(key=operator.itemgetter('probabilidad_seleccion'))
+        # Creamos la poblacion nueva
+        poblacion_nueva = []
+
+        # Individuos que se generan del cruce
+        individuo_1 = {}
+        individuo_2 = {}
 
 
+        for i in range(0, len(progenitores), 2):
+
+            # Inicializamos los individuos nuevos que vamos a crear
+            individuo_1 = {}
+            individuo_2 = {}
+            individuo_1['fitness'] = - 1
+            individuo_1['num_reglas'] = self.num_reglas
+            individuo_2['fitness'] = - 1
+            individuo_2['num_reglas'] = self.num_reglas
+
+            # En caso de que sea menor se produce el cruce
+            if np.random.uniform(0, 1) < self.probabilidadCruce:
+
+                # Calculamos un punto aleatorio entre las reglas del primer y el segundo progenitor
+                punto_cruce = np.random.randint(0, self.numReglas)
+                individuo_1['reglas'] = progenitores[i]['reglas'][:punto_cruce]
+                individuo_1['reglas'] = individuo_1['reglas'] + progenitores[i+1]['reglas'][punto_cruce:]
+                individuo_2['reglas'] = progenitores[i+1]['reglas'][:punto_cruce]
+                individuo_2['reglas'] = individuo_2['reglas'] + progenitores[i]['reglas'][punto_cruce:]
+
+            # En caso contrario los padres son los nuevos individuos
+            else:
+                individuo_1 = progenitores[i]
+                individuo_2 = progenitores[i+1]
+
+            poblacion_nueva.append(individuo_1)
+            poblacion_nueva.append(individuo_2)
 
 
-    def seleccion_elitismo(self):
+        return poblacion_nueva
+
+    def seleccion_elitismo(self, poblacion_nueva):
         """Se selecciona el porcentaje marcada entre los mejores fitness de todos los individuos que formaran
         parte de la siguiente generacion de forma directa."""
 
         self.poblacion.sort(key=operator.itemgetter('fitness'), reverse = True)
+        num_elites = round((self.elitismo * self.numIndividuos))
 
-        return self.poblacion[:(self.elitismo * self.numIndividuos)]
+        # Los seleccionamos de la poblacion actual ordenada
+        individuos_elitistas = self.poblacion[:num_elites]
+
+        # Eliminamos de la poblacion_nueva el numero de individuos que son elitistas para hacer hueco a los nuevos
+        poblacion_nueva = poblacion_nueva[:-individuos_elitistas]
+        poblacion_nueva.append(individuos_elitistas)
+
+        return poblacion_nueva
 
     def seleccion_progenitores(self):
-        """ Esta funcion calcula la probabilidad proporcional de cada individuo para ser seleccionado como progenitor."""
+        """ Esta funcion genera una lista con los progenitores que se van a utilizar para el cruce."""
+
+        # Lista de progenitores
+        progenitores = []
+
+        # Creamos un array con las probabilidades de cada individuo.
+        lista_fitness_ponderados = []
 
         # Media del fitness de la poblacion
         for individuo in range(self.poblacion):
@@ -111,7 +158,21 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         # Probabilidad de ser elegido de cada individuo
         for individuo in range(self.poblacion):
-            self.poblacion[individuo]['probabilidad_seleccion'] = self.poblacion[individuo]['fitness']/suma_fitness
+            fitness_ponderado = self.poblacion[individuo]['fitness']/suma_fitness
+            self.poblacion[individuo]['probabilidad_seleccion'] = fitness_ponderado
+            lista_fitness_ponderados.append(fitness_ponderado)
+
+        # Generamos la lista de progenitores con la funcion de numpy random_choice
+        indices_progenitores = np.random.choice(len(self.poblacion),len(self.poblacion), lista_fitness_ponderados)
+
+        # Generamos un array con los diccionarios que representan cada individuo
+        for i in range(indices_progenitores):
+            progenitores.append(self.poblacion[i])
+
+        return progenitores
+
+    def evaluar_regla(self):
+        return
 
 
 
