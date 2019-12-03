@@ -1,0 +1,2 @@
+- Una vez hecho el calculo proporcional del fitness para la seleccion, ¿Como se seleccionan?
+- El cruce se realiza utilizando como punto el final de las relgas?

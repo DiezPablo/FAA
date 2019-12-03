@@ -25,7 +25,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         self.listaDictsIntervalos = np.array([])
 
         longitud_regla = 0
-        for i in range(len(dataset.listaDicts) - 1):
+        for i in range(len(dataset.listaDicts)):
             dict ={}
             dict['inicio'] = longitud_regla
             dict['final'] = longitud_regla + len(dataset.listaDicts[i]) -1
@@ -40,6 +40,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
             individuo = {}
             num_reglas = np.random.randint(2, self.maxReglas)
             individuo['fitness'] = - 1
+            individuo['probabilidad_seleccion'] = 0.0
             individuo['num_reglas'] = num_reglas
             individuo['reglas'] = []
             for regla in range(num_reglas):
@@ -87,17 +88,30 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         individuo1 = {}
         individuo2 = {}
 
+        # Primero ordenamos la poblacion en base a su probabilidad de seleccion
+        self.poblacion.sort(key=operator.itemgetter('probabilidad_seleccion'))
+
+
 
 
     def seleccion_elitismo(self):
         """Se selecciona el porcentaje marcada entre los mejores fitness de todos los individuos que formaran
         parte de la siguiente generacion de forma directa."""
-        self.poblacion.sort(key=operator.itemgetter('fitness'))
+
+        self.poblacion.sort(key=operator.itemgetter('fitness'), reverse = True)
 
         return self.poblacion[:(self.elitismo * self.numIndividuos)]
 
     def seleccion_progenitores(self):
+        """ Esta funcion calcula la probabilidad proporcional de cada individuo para ser seleccionado como progenitor."""
 
+        # Media del fitness de la poblacion
+        for individuo in range(self.poblacion):
+            suma_fitness = self.poblacion[individuo]['fitness']
+
+        # Probabilidad de ser elegido de cada individuo
+        for individuo in range(self.poblacion):
+            self.poblacion[individuo]['probabilidad_seleccion'] = self.poblacion[individuo]['fitness']/suma_fitness
 
 
 
