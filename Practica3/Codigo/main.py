@@ -4,28 +4,36 @@ from EstrategiaParticionado import ValidacionSimple, ValidacionCruzada
 import random
 import numpy as np
 def main():
-    #dataset = Datos("ejemplo1.data")
+    dataset = Datos("ejemplo1.data")
     #clf = ClasificadorAlgoritmoGenetico(10, 100)
 
     #clf.generar_poblacion(dataset)
-    individuo1 = {}
-    individuo2 = {}
+    #individuo1 = {}
+    #individuo2 = {}
 
-    prueba1 = {}
-    prueba1['reglas'] = [[1],[2],[3],[4]]
-    prueba2 = {}
-    prueba2['reglas'] = [[5],[6],[7],[8]]
+    #prueba1 = {}
+    #prueba1['reglas'] = [[1],[2],[3],[4]]
+    #prueba2 = {}
+    #prueba2['reglas'] = [[5],[6],[7],[8]]
 
-    aleat = np.random.randint(0, len(prueba1['reglas']))
-    print(aleat)
+    #aleat = np.random.randint(0, len(prueba1['reglas']))
+    #print(aleat)
 
-    individuo1['reglas'] = prueba1['reglas'][:aleat]
-    individuo1['reglas']= individuo1['reglas'] + prueba2['reglas'][aleat:]
-    individuo2['reglas'] = prueba2['reglas'][:aleat]
-    individuo2['reglas'] = individuo2['reglas'] + prueba1['reglas'][aleat:]
+    #individuo1['reglas'] = prueba1['reglas'][:aleat]
+    #individuo1['reglas']= individuo1['reglas'] + prueba2['reglas'][aleat:]
+    #individuo2['reglas'] = prueba2['reglas'][:aleat]
+    #individuo2['reglas'] = individuo2['reglas'] + prueba1['reglas'][aleat:]
 
-    print(individuo1)
-    print(individuo2)
+    #print(individuo1)
+    #print(individuo2)
+
+    regla = np.ones(3)
+    pred = []
+    for dato in dataset.datos:
+        x = np.bitwise_and(dato.astype(int), regla.astype(int))
+        pred.append(x)
+    print(pred)
+
 
 if __name__ == "__main__":
     main()

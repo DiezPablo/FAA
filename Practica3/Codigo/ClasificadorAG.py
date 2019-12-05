@@ -52,9 +52,14 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         # Generamos una regla de longitud calculada anteriormente
         regla = np.zeros(longitud_regla)
 
-        for i in range(len(self.listaDictsIntervalos)):
+        # Caso atributos(n bits)
+        for i in range(len(self.listaDictsIntervalos)-1):
             aleat = np.random.randint(self.listaDictsIntervalos[i]['inicio'], self.listaDictsIntervalos[i]['final'])
             regla[aleat] = 1
+
+        # Caso clase(1 bit)
+        aleat = np.random.randint((0,1))
+        regla.append(aleat)
 
         return regla
 
@@ -90,11 +95,6 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         # Creamos la poblacion nueva
         poblacion_nueva = []
-
-        # Individuos que se generan del cruce
-        individuo_1 = {}
-        individuo_2 = {}
-
 
         for i in range(0, len(progenitores), 2):
 
@@ -152,14 +152,14 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         # Creamos un array con las probabilidades de cada individuo.
         lista_fitness_ponderados = []
 
+        suma_fitness = 0
         # Media del fitness de la poblacion
         for individuo in range(self.poblacion):
-            suma_fitness = self.poblacion[individuo]['fitness']
+            suma_fitness += self.poblacion[individuo]['fitness']
 
         # Probabilidad de ser elegido de cada individuo
         for individuo in range(self.poblacion):
             fitness_ponderado = self.poblacion[individuo]['fitness']/suma_fitness
-            self.poblacion[individuo]['probabilidad_seleccion'] = fitness_ponderado
             lista_fitness_ponderados.append(fitness_ponderado)
 
         # Generamos la lista de progenitores con la funcion de numpy random_choice
@@ -171,7 +171,17 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         return progenitores
 
-    def evaluar_regla(self):
+    def evaluar_regla(self, datosTrain):
+        for individuo in self.poblacion:
+            for regla in individuo['reglas']:
+                for dato in datosTrain:
+                    for indice in range(len(dato)):
+
+
+
+
+
+    def fitness(self):
         return
 
 
