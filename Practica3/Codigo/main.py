@@ -5,7 +5,7 @@ import random
 import numpy as np
 def main():
     dataset = Datos("ejemplo1.data")
-    #clf = ClasificadorAlgoritmoGenetico(10, 100)
+    clf = ClasificadorAlgoritmoGenetico(10, 100)
 
     #clf.generar_poblacion(dataset)
     #individuo1 = {}
@@ -27,12 +27,9 @@ def main():
     #print(individuo1)
     #print(individuo2)
 
-    regla = np.ones(3)
-    pred = []
-    for dato in dataset.datos:
-        x = np.bitwise_and(dato.astype(int), regla.astype(int))
-        pred.append(x)
-    print(pred)
+    clf.calculo_intervalos(dataset)
+    clf.transforma_dataset(dataset)
+    print(dataset.listaDicts)
 
 
 if __name__ == "__main__":

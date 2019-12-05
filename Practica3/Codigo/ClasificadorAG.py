@@ -16,23 +16,50 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         self.probabilidadCruce = probabilidadCruce
         super().__init__()
 
-    def generar_poblacion(self, dataset):
+    def transforma_dataset(self, dataset):
+        """ Transforma el dataset a la misma notacion que van a utilizar las reglas del algoritmo genético"""
 
-        # Lista de diccionarios que va a almacenar los individuos
-        self.poblacion = np.array(self.numIndividuos)
+        # Creamos el dataset con las dimensiones que tiene que tener
+        self.dataset_transformado = np.array([])
+
+        for dato in dataset.datos:
+            array_convertido = np.zeros(self.longitud_regla)
+            for i in range(len(dato)-1):
+                posicion_bit_uno = self.listaDictsIntervalos[i]['final'] - int(dato[i])
+                array_convertido[posicion_bit_uno] = 1
+
+            array_convertido = np.append(array_convertido, dato[i+1])
+            print(array_convertido)
+            self.dataset_transformado = np.append(self.dataset_transformado, array_convertido)
+
+
+
+
+
+
+    def calculo_intervalos(self, dataset):
 
         # Calculamos la longitud de la regla que se va a generar y los intervalos dentro la regla que hacen referencia a cada atributo.
         self.listaDictsIntervalos = np.array([])
 
         # Hacemos un random del numero de reglas, pero todos los individuos tendran el mismo
-        longitud_regla = 0
-        for i in range(len(dataset.listaDicts)):
+        self.longitud_regla = 0
+        for i in range(len(dataset.listaDicts) - 1):
             dict ={}
-            dict['inicio'] = longitud_regla
-            dict['final'] = longitud_regla + len(dataset.listaDicts[i]) -1
+            dict['inicio'] = self.longitud_regla
+            dict['final'] = self.longitud_regla + len(dataset.listaDicts[i]) -1
             self.listaDictsIntervalos = np.append(self.listaDictsIntervalos,dict)
 
-            longitud_regla += len(dataset.listaDicts[i])
+            self.longitud_regla += len(dataset.listaDicts[i])
+
+        return self.longitud_regla
+
+    def generar_poblacion(self, dataset):
+
+        # Lista de diccionarios que va a almacenar los individuos
+        self.poblacion = np.array(self.numIndividuos)
+
+        self.calculo_intervalos(dataset)
 
         # Generamos los individuos que formaran la poblacion inicial
         for num_generacion in range(self.numIndividuos):
@@ -43,14 +70,14 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
             individuo['num_reglas'] = self.num_reglas
             individuo['reglas'] = []
             for regla in range(self.num_reglas):
-                individuo['reglas'].append(self.generar_regla(longitud_regla))
+                individuo['reglas'].append(self.generar_regla(self.longitud_regla))
 
             self.poblacion = np.append(self.poblacion, individuo)
 
-    def generar_regla(self, longitud_regla):
+    def generar_regla(self):
 
         # Generamos una regla de longitud calculada anteriormente
-        regla = np.zeros(longitud_regla)
+        regla = np.zeros(self.longitud_regla)
 
         # Caso atributos(n bits)
         for i in range(len(self.listaDictsIntervalos)-1):
@@ -90,6 +117,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
     def operador_cruce(self):
         """ Funcion que genera el cruce de dos individuos en caso deque supere la probabilidad definida."""
+
         # Seleccionamos los progenitores
         progenitores = self.seleccion_progenitores()
 
@@ -172,11 +200,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         return progenitores
 
     def evaluar_regla(self, datosTrain):
-        for individuo in self.poblacion:
-            for regla in individuo['reglas']:
-                for dato in datosTrain:
-                    for indice in range(len(dato)):
-
+     return
 
 
 
