@@ -19,23 +19,21 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
     def transforma_dataset(self, dataset):
         """ Transforma el dataset a la misma notacion que van a utilizar las reglas del algoritmo genético"""
 
-        # Creamos el dataset con las dimensiones que tiene que tener
-        self.dataset_transformado = np.array([])
+        # Creamos un array donde van a insertarse los datos transformados
+        self.datos_transformados = np.array([])
 
+        # Convertimos los elementos al mismo tipo que las reglas
         for dato in dataset.datos:
-            array_convertido = np.zeros(self.longitud_regla)
+            array_convertido = np.zeros(self.longitud_regla - 1)
             for i in range(len(dato)-1):
                 posicion_bit_uno = self.listaDictsIntervalos[i]['final'] - int(dato[i])
                 array_convertido[posicion_bit_uno] = 1
 
             array_convertido = np.append(array_convertido, dato[i+1])
-            print(array_convertido)
-            self.dataset_transformado = np.append(self.dataset_transformado, array_convertido)
 
+            self.datos_transformados = np.append(self.datos_transformados, array_convertido)
 
-
-
-
+        self.datos_transformados = self.datos_transformados.reshape(dataset.numDatos, self.longitud_regla)
 
     def calculo_intervalos(self, dataset):
 
@@ -52,12 +50,14 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
             self.longitud_regla += len(dataset.listaDicts[i])
 
+        self.longitud_regla += 1
+
         return self.longitud_regla
 
     def generar_poblacion(self, dataset):
 
         # Lista de diccionarios que va a almacenar los individuos
-        self.poblacion = np.array(self.numIndividuos)
+        self.poblacion = np.array([])
 
         self.calculo_intervalos(dataset)
 
@@ -66,27 +66,27 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
             # Diccionario que forma el individuo, con su num_reglas, la lista de reglas que lo componen y el fitness
             individuo = {}
-            individuo['fitness'] = - 1
-            individuo['num_reglas'] = self.num_reglas
+            individuo['fitness'] = 0
+            individuo['num_reglas'] = self.numReglas
             individuo['reglas'] = []
-            for regla in range(self.num_reglas):
-                individuo['reglas'].append(self.generar_regla(self.longitud_regla))
+            for regla in range(self.numReglas):
+                individuo['reglas'].append(self.generar_regla())
 
             self.poblacion = np.append(self.poblacion, individuo)
 
     def generar_regla(self):
 
         # Generamos una regla de longitud calculada anteriormente
-        regla = np.zeros(self.longitud_regla)
+        regla = np.zeros(self.longitud_regla -1)
 
         # Caso atributos(n bits)
-        for i in range(len(self.listaDictsIntervalos)-1):
-            aleat = np.random.randint(self.listaDictsIntervalos[i]['inicio'], self.listaDictsIntervalos[i]['final'])
+        for i in range(len(self.listaDictsIntervalos)):
+            aleat = np.random.randint(self.listaDictsIntervalos[i]['inicio'], self.listaDictsIntervalos[i]['final']+1)
             regla[aleat] = 1
 
-        # Caso clase(1 bit)
-        aleat = np.random.randint((0,1))
-        regla.append(aleat)
+            # Caso clase(1 bit)
+        aleat = np.random.randint(0,2)
+        regla = np.append(regla,aleat)
 
         return regla
 
@@ -102,16 +102,8 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
                 # Si hay que mutar, generamos un numero aleat. para ver que regla mutamos.
                 regla_mutacion = np.random.randint(0,individuo['num_reglas'])
 
-                random_atributo = np.random.randint(0,len(self.listaDictsIntervalos))
-                atributo_mutacion = self.listaDictsIntervalos[random_atributo]
-
-                bit_flip = np.random.randint(low = atributo_mutacion['inicio'], high = atributo_mutacion['final'])
-
-                # Ponemos a 0 todos los bits del atributo que se va a mutar
-                for i in range(atributo_mutacion['inicio'], atributo_mutacion['final']):
-                    individuo['reglas'][regla_mutacion][i] = 0
-
-                individuo['reglas'][regla_mutacion][bit_flip] = 1
+                # Generamos una regla aleatoria nueva y la cambiamos por la anterior
+                individuo['reglas'][regla_mutacion] = self.generar_regla()
 
         return self.poblacion
 
@@ -129,9 +121,9 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
             # Inicializamos los individuos nuevos que vamos a crear
             individuo_1 = {}
             individuo_2 = {}
-            individuo_1['fitness'] = - 1
+            individuo_1['fitness'] = 0
             individuo_1['num_reglas'] = self.num_reglas
-            individuo_2['fitness'] = - 1
+            individuo_2['fitness'] = 0
             individuo_2['num_reglas'] = self.num_reglas
 
             # En caso de que sea menor se produce el cruce
@@ -151,7 +143,6 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
             poblacion_nueva.append(individuo_1)
             poblacion_nueva.append(individuo_2)
-
 
         return poblacion_nueva
 
@@ -199,39 +190,18 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         return progenitores
 
-    def evaluar_regla(self, datosTrain):
-     return
+
+    def fitness(self, datosTrain):
+        datTrain = self.datos_transformados[datosTrain]
+
+        for dato in datTrain:
+            for individuo in self.poblacion:
+                for regla in individuo['reglas']:
+                    res = np.bitwise_and(dato.astype(int), regla.astype(int))
+                    num_unos = (res == 1).sum()
+                    if num_unos == 3:
+                        individuo['fitness'] += 1
 
 
 
-
-    def fitness(self):
         return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
