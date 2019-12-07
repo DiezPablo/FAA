@@ -14,7 +14,62 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         self.probabilidadMutacion = probabilidadMutacion
         self.elitismo = elitismo
         self.probabilidadCruce = probabilidadCruce
+
         super().__init__()
+
+
+    def entrenamiento(self, dataset, datosTrain):
+
+        """Algoritmo de entrenamiento del Algoritmo genetico. Recibe por parametro los datosTrain y el dataset sobre el que se ejecuta."""
+
+        # Generamos la poblacion inicial
+        self.generar_poblacion(dataset)
+
+        for numGen in range(self.numGeneraciones):
+
+            # Calculo del fitness de la poblacion
+            self.fitness(datosTrain)
+            print("Mejor individuo de la generacion ", numGen)
+            print(self.champion())
+            # Elites que pasan directamente a a la siguiente poblacion
+            elites, n_elites = self.seleccion_elitismo()
+
+            # Operador cruce
+            poblacion_nueva = self.operador_cruce()
+
+            # Generamos la poblacion nueva para ello hay que eliminar de los descendientes el numero de elites
+            # que van a pasar directamente a la nueva poblacion
+            for i in range(n_elites):
+                poblacion_nueva.pop()
+                poblacion_nueva.append(elites[i])
+
+
+            self.poblacion = poblacion_nueva
+
+            #  Operador mutacion
+            self.operador_mutacion()
+
+        self.fitness(datosTrain)
+        print("Mejor individuo final: ", self.champion())
+
+        return self.champion()
+
+    def clasifica(self, datosTest, champion):
+
+        datTest = self.datos_transformados[datosTest]
+        aciertos = 0
+
+        for dato in datTest:
+            for regla in champion['reglas']:
+                res = np.bitwise_and(dato.astype(int), regla.astype(int))
+                num_unos = (res == 1).sum()
+                if num_unos == 3:
+                    aciertos += 1
+                    break
+
+        error = (len(datTest) - aciertos) / len(datosTest)
+        return error
+
 
     def transforma_dataset(self, dataset):
         """ Transforma el dataset a la misma notacion que van a utilizar las reglas del algoritmo genético"""
@@ -105,8 +160,6 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
                 # Generamos una regla aleatoria nueva y la cambiamos por la anterior
                 individuo['reglas'][regla_mutacion] = self.generar_regla()
 
-        return self.poblacion
-
     def operador_cruce(self):
         """ Funcion que genera el cruce de dos individuos en caso deque supere la probabilidad definida."""
 
@@ -122,9 +175,9 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
             individuo_1 = {}
             individuo_2 = {}
             individuo_1['fitness'] = 0
-            individuo_1['num_reglas'] = self.num_reglas
+            individuo_1['num_reglas'] = self.numReglas
             individuo_2['fitness'] = 0
-            individuo_2['num_reglas'] = self.num_reglas
+            individuo_2['num_reglas'] = self.numReglas
 
             # En caso de que sea menor se produce el cruce
             if np.random.uniform(0, 1) < self.probabilidadCruce:
@@ -146,21 +199,30 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         return poblacion_nueva
 
-    def seleccion_elitismo(self, poblacion_nueva):
+    def seleccion_elitismo(self):
         """Se selecciona el porcentaje marcada entre los mejores fitness de todos los individuos que formaran
         parte de la siguiente generacion de forma directa."""
 
-        self.poblacion.sort(key=operator.itemgetter('fitness'), reverse = True)
+        # Ordenamos la poblacion y calculamos el numero de elites en funcion de la probabilidad de elitismo.
+        self.poblacion = sorted(self.poblacion, key=lambda k: k['fitness'], reverse=True)
         num_elites = round((self.elitismo * self.numIndividuos))
 
-        # Los seleccionamos de la poblacion actual ordenada
-        individuos_elitistas = self.poblacion[:num_elites]
+        # Nos guardamos los 5 mejores de la poblacion y los añadimos a la poblacion nueva
+        individuos = self.poblacion[:num_elites]
 
-        # Eliminamos de la poblacion_nueva el numero de individuos que son elitistas para hacer hueco a los nuevos
-        poblacion_nueva = poblacion_nueva[:-individuos_elitistas]
-        poblacion_nueva.append(individuos_elitistas)
+        # Guardamos en una nueva lista que devolvemos los mejores
+        elites = []
+        for i in range(num_elites):
+            elites.append(individuos[i])
 
-        return poblacion_nueva
+        return elites, num_elites
+
+    def champion(self):
+
+        self.poblacion = sorted(self.poblacion, key=lambda k: k['fitness'], reverse=True)
+
+        champion = self.poblacion[0]
+        return champion
 
     def seleccion_progenitores(self):
         """ Esta funcion genera una lista con los progenitores que se van a utilizar para el cruce."""
@@ -173,11 +235,11 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         suma_fitness = 0
         # Media del fitness de la poblacion
-        for individuo in range(self.poblacion):
+        for individuo in range(len(self.poblacion)):
             suma_fitness += self.poblacion[individuo]['fitness']
 
         # Probabilidad de ser elegido de cada individuo
-        for individuo in range(self.poblacion):
+        for individuo in range(len(self.poblacion)):
             fitness_ponderado = self.poblacion[individuo]['fitness']/suma_fitness
             lista_fitness_ponderados.append(fitness_ponderado)
 
@@ -185,7 +247,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         indices_progenitores = np.random.choice(len(self.poblacion),len(self.poblacion), lista_fitness_ponderados)
 
         # Generamos un array con los diccionarios que representan cada individuo
-        for i in range(indices_progenitores):
+        for i in indices_progenitores:
             progenitores.append(self.poblacion[i])
 
         return progenitores
@@ -201,7 +263,5 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
                     num_unos = (res == 1).sum()
                     if num_unos == 3:
                         individuo['fitness'] += 1
-
-
-
-        return
+                    elif num_unos == 2:
+                        individuo['fitness'] += 0.5
