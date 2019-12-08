@@ -1,12 +1,10 @@
 from Clasificador import Clasificador
-import random
 import numpy as np
-import collections
-import operator
+from matplotlib import pyplot as plt
 
 class ClasificadorAlgoritmoGenetico(Clasificador):
 
-    def __init__(self, numGeneraciones, numIndividuos, numReglas = 6, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85):
+    def __init__(self, numGeneraciones, numIndividuos, numReglas = 8, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85):
 
         self.numGeneraciones = numGeneraciones
         self.numIndividuos = numIndividuos
@@ -14,6 +12,8 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         self.probabilidadMutacion = probabilidadMutacion
         self.elitismo = elitismo
         self.probabilidadCruce = probabilidadCruce
+        self.listaFitnessMedios = []
+        self.listaFitnessChampion = []
 
         super().__init__()
 
@@ -29,8 +29,21 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
             # Calculo del fitness de la poblacion
             self.fitness(datosTrain)
+
             print("Mejor individuo de la generacion ", numGen)
             print(self.champion())
+
+            # Guardamos los fitness medios de cada poblacion
+            suma_fitness = 0
+            for individuo in self.poblacion:
+                suma_fitness += individuo['fitness']
+
+            fitness_medio_generacion = suma_fitness/len(self.poblacion)
+            self.listaFitnessMedios.append(fitness_medio_generacion)
+
+            # Guardamos el fitness del mejor individuo de cada poblacion
+            self.listaFitnessChampion.append(self.champion()['fitness'])
+
             # Elites que pasan directamente a a la siguiente poblacion
             elites, n_elites = self.seleccion_elitismo()
 
@@ -43,18 +56,19 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
                 poblacion_nueva.pop()
                 poblacion_nueva.append(elites[i])
 
-
             self.poblacion = poblacion_nueva
 
-            #  Operador mutacion
+            #  Operador mutacion sobre la nueva poblacion
             self.operador_mutacion()
 
+        #Calculamos el mejor individuo final
         self.fitness(datosTrain)
         print("Mejor individuo final: ", self.champion())
 
         return self.champion()
 
     def clasifica(self, datosTest, champion):
+        """Utilizando el mejor individuo tras terminar el numero de generaciones del algoritmo, clasifica los datos Test."""
 
         datTest = self.datos_transformados[datosTest]
         aciertos = 0
@@ -62,12 +76,18 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         for dato in datTest:
             for regla in champion['reglas']:
                 res = np.bitwise_and(dato.astype(int), regla.astype(int))
-                num_unos = (res == 1).sum()
-                if num_unos == 3:
-                    aciertos += 1
-                    break
+                num_unos = (res[:-1] == 1).sum()
 
+                # Si acierta en los dos atributos vemos la clase
+                if num_unos == 2:
+                    # Si acierta en la clase se para el bucle y pasamos al siguiente ejemplo
+                    if dato[-1] == res[-1]:
+                        aciertos += 1
+                        break
+
+        # Calculamos el error y lo devolvemos
         error = (len(datTest) - aciertos) / len(datosTest)
+
         return error
 
 
@@ -218,7 +238,9 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         return elites, num_elites
 
     def champion(self):
+        """ Devuelve el mejor individiuo de la poblacion"""
 
+        # Ordenamos la poblacion en funcion del fitness
         self.poblacion = sorted(self.poblacion, key=lambda k: k['fitness'], reverse=True)
 
         champion = self.poblacion[0]
@@ -254,14 +276,33 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
 
     def fitness(self, datosTrain):
+        """ Funcion que calcula el fitness de un individuo de la poblacion"""
+
         datTrain = self.datos_transformados[datosTrain]
 
         for dato in datTrain:
             for individuo in self.poblacion:
                 for regla in individuo['reglas']:
                     res = np.bitwise_and(dato.astype(int), regla.astype(int))
-                    num_unos = (res == 1).sum()
-                    if num_unos == 3:
-                        individuo['fitness'] += 1
-                    elif num_unos == 2:
-                        individuo['fitness'] += 0.5
+                    num_unos = (res[:-1] == 1).sum()
+                    # Si esto se cumple ha acertado los dos atributos, ahora hay que comparar la clase
+                    if num_unos == 2:
+                        # Ahora hay que ver si la clase coincide
+                        if res[-1] == dato[-1]:
+                            individuo['fitness'] += 1
+                            # Si acierta por completo, en una regla no comparamos con mas
+                            break
+                        else:
+                            # En caso de haber acertado los dos atributos y solo fallar la clase tambien le premiamos
+                            individuo['fitness'] += 0.5
+
+
+    def graficas_fitness(self):
+        """ Funcion que genera las graficas del fitness medio de la poblacion y la evolucion del fitness del mejor individuo."""
+
+        plt.plot(self.listaFitnessChampion, c='red', label = 'fitness champion')
+        plt.plot(self.listaFitnessMedios, c='blue', label = 'fitness medio poblacion')
+        plt.xlabel("Num. generaciones")
+        plt.ylabel("Fitness")
+        plt.legend(loc='best')
+        plt.show()
