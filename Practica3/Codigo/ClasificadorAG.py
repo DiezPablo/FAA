@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 
 class ClasificadorAlgoritmoGenetico(Clasificador):
 
-    def __init__(self, numGeneraciones, numIndividuos, numReglas = 8, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85):
+    def __init__(self, numGeneraciones, numIndividuos, numReglas = 25, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85):
 
         self.numGeneraciones = numGeneraciones
         self.numIndividuos = numIndividuos
@@ -21,6 +21,9 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
     def entrenamiento(self, dataset, datosTrain):
 
         """Algoritmo de entrenamiento del Algoritmo genetico. Recibe por parametro los datosTrain y el dataset sobre el que se ejecuta."""
+        # Guardamos el numero de atributos del dato
+        self.numAtributos = len(dataset.listaDicts) - 1
+
 
         # Generamos la poblacion inicial
         self.generar_poblacion(dataset)
@@ -79,7 +82,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
                 num_unos = (res[:-1] == 1).sum()
 
                 # Si acierta en los dos atributos vemos la clase
-                if num_unos == 2:
+                if num_unos == self.numAtributos:
                     # Si acierta en la clase se para el bucle y pasamos al siguiente ejemplo
                     if dato[-1] == res[-1]:
                         aciertos += 1
@@ -286,7 +289,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
                     res = np.bitwise_and(dato.astype(int), regla.astype(int))
                     num_unos = (res[:-1] == 1).sum()
                     # Si esto se cumple ha acertado los dos atributos, ahora hay que comparar la clase
-                    if num_unos == 2:
+                    if num_unos == self.numAtributos:
                         # Ahora hay que ver si la clase coincide
                         if res[-1] == dato[-1]:
                             individuo['fitness'] += 1

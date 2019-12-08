@@ -3,8 +3,8 @@ from Datos import Datos
 from EstrategiaParticionado import ValidacionSimple, ValidacionCruzada
 
 def main():
-    dataset = Datos("ejemplo2.data")
-    clf = ClasificadorAlgoritmoGenetico(100, 100)
+    dataset = Datos("tic-tac-toe.data")
+    clf = ClasificadorAlgoritmoGenetico(200, 200)
 
     vs = ValidacionSimple(0.7)
     vs.creaParticiones(dataset)
