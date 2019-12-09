@@ -344,7 +344,9 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
                     elif clases_predichas.count(1) < clases_predichas.count(0):
                         pred = 0
                     else:
-                        pred = np.random.randint(0,2)
+
+                        # Este caso se desestima, por incongruencias de las reglas
+                        pred = -1
 
                     # Si la prediccion coincide con la clase del dato, acertamos
                 if pred == dato [-1]:

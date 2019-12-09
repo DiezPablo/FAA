@@ -4,7 +4,7 @@ from EstrategiaParticionado import ValidacionSimple, ValidacionCruzada
 
 def main():
 
-    dataset = Datos("ejemplo1.data")
+    dataset = Datos("ejemplo2.data")
 
     clf = ClasificadorAlgoritmoGenetico(100, 100, numReglas=6)
     vs = ValidacionSimple(0.7)
