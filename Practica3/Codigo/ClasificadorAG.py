@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 
 class ClasificadorAlgoritmoGenetico(Clasificador):
 
-    def __init__(self, numGeneraciones, numIndividuos, numReglas = 25, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85):
+    def __init__(self, numGeneraciones, numIndividuos, numReglas = 8, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85):
 
         self.numGeneraciones = numGeneraciones
         self.numIndividuos = numIndividuos
@@ -29,6 +29,10 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         self.generar_poblacion(dataset)
 
         for numGen in range(self.numGeneraciones):
+
+            # Inicializamos todos los fitness a 0.
+            for individuo in self.poblacion:
+                individuo['fitness'] = 0
 
             # Calculo del fitness de la poblacion
             self.fitness(datosTrain)
@@ -66,9 +70,20 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         #Calculamos el mejor individuo final
         self.fitness(datosTrain)
-        print("Mejor individuo final: ", self.champion())
+        champion = self.champion()
+        self.listaFitnessChampion.append(champion['fitness'])
 
-        return self.champion()
+        suma_fitness = 0
+        for individuo in self.poblacion:
+            suma_fitness += individuo['fitness']
+
+        fitness_medio_generacion = suma_fitness / len(self.poblacion)
+        self.listaFitnessMedios.append(fitness_medio_generacion)
+
+        print("Mejor individuo final: ", champion)
+
+
+        return champion
 
     def clasifica(self, datosTest, champion):
         """Utilizando el mejor individuo tras terminar el numero de generaciones del algoritmo, clasifica los datos Test."""
@@ -76,22 +91,42 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         datTest = self.datos_transformados[datosTest]
         aciertos = 0
 
+        # Recorremos los datos de test
         for dato in datTest:
+
+            # Array que guardara las clases que se predicen para cada dato para posteriormente votar
+            clases_predichas = []
+
+            # Recorremos todas las reglas del mejor individuo
             for regla in champion['reglas']:
+                pred = -1
+
+                # Vemos si coinciden los atributos
                 res = np.bitwise_and(dato.astype(int), regla.astype(int))
                 num_unos = (res[:-1] == 1).sum()
 
-                # Si acierta en los dos atributos vemos la clase
+                # En caso de que todos los atributos coincidan, guardamos la clase que predice esa regla.
                 if num_unos == self.numAtributos:
-                    # Si acierta en la clase se para el bucle y pasamos al siguiente ejemplo
-                    if dato[-1] == res[-1]:
-                        aciertos += 1
-                        break
+                    clases_predichas.append(regla[-1])
+
+            # En el caso en el que se haya predicho algo, vemos cual es la clase mayoritaria y la devolvemos
+            if len(clases_predichas) != 0:
+                if clases_predichas.count(1) > clases_predichas.count(0):
+                    pred = 1
+                elif clases_predichas.count(1) < clases_predichas.count(0):
+                    pred = 0
+                else:
+                    pred = np.random.randint(0,2)
+
+            # Si la clase mayoritaria acierta, se suma uno
+            if pred == dato[-1]:
+                aciertos += 1
+
 
         # Calculamos el error y lo devolvemos
         error = (len(datTest) - aciertos) / len(datosTest)
 
-        return error
+        return error, 1 - error
 
 
     def transforma_dataset(self, dataset):
@@ -163,8 +198,9 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
             regla[aleat] = 1
 
             # Caso clase(1 bit)
-        aleat = np.random.randint(0,2)
-        regla = np.append(regla,aleat)
+        aleat = np.random.randint(0, 2)
+        regla = np.append(regla, aleat)
+
 
         return regla
 
@@ -283,22 +319,39 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         datTrain = self.datos_transformados[datosTrain]
 
-        for dato in datTrain:
-            for individuo in self.poblacion:
+        # Para cada individuo recorremos todos los datos
+        for individuo in self.poblacion:
+
+            # Contador que cuenta el numero de aciertos del individuo respecto a todos los datos, que es el fitness
+            aciertos = 0
+            for dato in datTrain:
+                clases_predichas = []
+                pred = -1
                 for regla in individuo['reglas']:
+
+                    # And logico de los atributos
                     res = np.bitwise_and(dato.astype(int), regla.astype(int))
                     num_unos = (res[:-1] == 1).sum()
-                    # Si esto se cumple ha acertado los dos atributos, ahora hay que comparar la clase
-                    if num_unos == self.numAtributos:
-                        # Ahora hay que ver si la clase coincide
-                        if res[-1] == dato[-1]:
-                            individuo['fitness'] += 1
-                            # Si acierta por completo, en una regla no comparamos con mas
-                            break
-                        else:
-                            # En caso de haber acertado los dos atributos y solo fallar la clase tambien le premiamos
-                            individuo['fitness'] += 0.5
 
+                    # Si coinciden todos guardamos la clase de las reglas que se activan
+                    if num_unos == self.numAtributos:
+                        clases_predichas.append(regla[-1])
+
+                # Predecimos la clase mayoritaria
+                if len(clases_predichas) != 0:
+                    if clases_predichas.count(1) > clases_predichas.count(0):
+                        pred = 1
+                    elif clases_predichas.count(1) < clases_predichas.count(0):
+                        pred = 0
+                    else:
+                        pred = np.random.randint(0,2)
+
+                    # Si la prediccion coincide con la clase del dato, acertamos
+                if pred == dato [-1]:
+                    aciertos += 1
+
+            # Calculo del fitness para cada individuo.
+            individuo['fitness'] = aciertos / len(datTrain)
 
     def graficas_fitness(self):
         """ Funcion que genera las graficas del fitness medio de la poblacion y la evolucion del fitness del mejor individuo."""
