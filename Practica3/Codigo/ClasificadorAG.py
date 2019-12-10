@@ -1,6 +1,7 @@
 from Clasificador import Clasificador
 import numpy as np
 from matplotlib import pyplot as plt
+import random
 
 class ClasificadorAlgoritmoGenetico(Clasificador):
 
@@ -24,7 +25,6 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         # Guardamos el numero de atributos del dato
         self.numAtributos = len(dataset.listaDicts) - 1
 
-
         # Generamos la poblacion inicial
         self.generar_poblacion(dataset)
 
@@ -33,10 +33,10 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
             # Inicializamos todos los fitness a 0.
             for individuo in self.poblacion:
                 individuo['fitness'] = 0
-
+            
             # Calculo del fitness de la poblacion
             self.fitness(datosTrain)
-
+            print("Poblacion tras fitness: ", self.poblacion)
             print("Mejor individuo de la generacion ", numGen)
             print(self.champion())
 
@@ -53,20 +53,27 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
             # Elites que pasan directamente a a la siguiente poblacion
             elites, n_elites = self.seleccion_elitismo()
+            print("Elites:", elites)
 
             # Operador cruce
             poblacion_nueva = self.operador_cruce()
 
-            # Generamos la poblacion nueva para ello hay que eliminar de los descendientes el numero de elites
-            # que van a pasar directamente a la nueva poblacion
-            for i in range(n_elites):
-                poblacion_nueva.pop()
-                poblacion_nueva.append(elites[i])
-
-            self.poblacion = poblacion_nueva
-
             #  Operador mutacion sobre la nueva poblacion
-            self.operador_mutacion()
+            individuos_mutados = self.operador_mutacion()
+
+            print("Poblacion antigua: ", self.poblacion)        
+                
+            self.poblacion = []
+            for i in range(len(poblacion_nueva)):
+                self.poblacion.append(poblacion_nueva[i])
+            
+            for i in range(len(individuos_mutados)):
+                self.poblacion.append(individuos_mutados[i])
+
+            for i in range(len(elites)):
+                self.poblacion.append(elites[i])
+            
+            print("Poblacion nueva: ", self.poblacion)
 
         #Calculamos el mejor individuo final
         self.fitness(datosTrain)
@@ -87,24 +94,24 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
     def clasifica(self, datosTest, champion):
         """Utilizando el mejor individuo tras terminar el numero de generaciones del algoritmo, clasifica los datos Test."""
-
+        print(" -- CALSIFICACION --")
         datTest = self.datos_transformados[datosTest]
         aciertos = 0
 
         # Recorremos los datos de test
         for dato in datTest:
-
+            print(" - Dato a clasificar: ", dato)
             # Array que guardara las clases que se predicen para cada dato para posteriormente votar
             clases_predichas = []
 
             # Recorremos todas las reglas del mejor individuo
             for regla in champion['reglas']:
                 pred = -1
-
+                print("     - Regla: ", regla)
                 # Vemos si coinciden los atributos
                 res = np.bitwise_and(dato.astype(int), regla.astype(int))
                 num_unos = (res[:-1] == 1).sum()
-
+                print(" --NUM UNOS--:", num_unos)
                 # En caso de que todos los atributos coincidan, guardamos la clase que predice esa regla.
                 if num_unos == self.numAtributos:
                     clases_predichas.append(regla[-1])
@@ -121,11 +128,12 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
             # Si la clase mayoritaria acierta, se suma uno
             if pred == dato[-1]:
                 aciertos += 1
+                print("Acierta!", aciertos)
 
 
         # Calculamos el error y lo devolvemos
         error = (len(datTest) - aciertos) / len(datosTest)
-
+        print("Longitud datos test: ", len(datTest))
         return error, 1 - error
 
 
@@ -208,16 +216,22 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
     def operador_mutacion(self):
         """ Solo se mutara una regla, de manera aleatoria, en caso de que la probabilidad que obtenemos sea menor del umbral."""
 
-        for individuo in self.poblacion:
+        n_mutaciones = round((self.probabilidadMutacion * self.numIndividuos))
+        print(n_mutaciones)
 
-            # Calculamos la probabilidad de mutar en base al umbral.
-            if np.random.uniform(0, 1) < self.probabilidadMutacion:
+        individuos_mutacion = random.sample(list(self.poblacion), n_mutaciones)
+        print(individuos_mutacion)
+        
+        for individuo in individuos_mutacion:
+            # Si hay que mutar, generamos un numero aleat. para ver que regla mutamos.
+            regla_mutacion = np.random.randint(0,individuo['num_reglas'])
+            print("          - - Individuo antes de mutar: ",individuo)
+            # Generamos una regla aleatoria nueva y la cambiamos por la anterior
+            individuo['reglas'][regla_mutacion] = self.generar_regla()
+            print("         - - Individuo mutado: ", individuo)
 
-                # Si hay que mutar, generamos un numero aleat. para ver que regla mutamos.
-                regla_mutacion = np.random.randint(0,individuo['num_reglas'])
-
-                # Generamos una regla aleatoria nueva y la cambiamos por la anterior
-                individuo['reglas'][regla_mutacion] = self.generar_regla()
+        print(individuos_mutacion)
+        return individuos_mutacion
 
     def operador_cruce(self):
         """ Funcion que genera el cruce de dos individuos en caso deque supere la probabilidad definida."""
@@ -225,9 +239,11 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         # Seleccionamos los progenitores
         progenitores = self.seleccion_progenitores()
 
+        n_cruces = round((self.probabilidadCruce * self.numIndividuos))
+        print("Numero de cruces", n_cruces)
         # Creamos la poblacion nueva
         poblacion_nueva = []
-
+        
         for i in range(0, len(progenitores), 2):
 
             # Inicializamos los individuos nuevos que vamos a crear
@@ -239,24 +255,26 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
             individuo_2['num_reglas'] = self.numReglas
 
             # En caso de que sea menor se produce el cruce
-            if np.random.uniform(0, 1) < self.probabilidadCruce:
-
-                # Calculamos un punto aleatorio entre las reglas del primer y el segundo progenitor
-                punto_cruce = np.random.randint(0, self.numReglas)
-                individuo_1['reglas'] = progenitores[i]['reglas'][:punto_cruce]
-                individuo_1['reglas'] = individuo_1['reglas'] + progenitores[i+1]['reglas'][punto_cruce:]
-                individuo_2['reglas'] = progenitores[i+1]['reglas'][:punto_cruce]
-                individuo_2['reglas'] = individuo_2['reglas'] + progenitores[i]['reglas'][punto_cruce:]
-
-            # En caso contrario los padres son los nuevos individuos
-            else:
-                individuo_1 = progenitores[i]
-                individuo_2 = progenitores[i+1]
-
+            
+            print(" -- Antes de cruce:")
+            print("Individuo 1: ", progenitores[i])
+            print("Individuo 2: ", progenitores[i+1])
+            # Calculamos un punto aleatorio entre las reglas del primer y el segundo progenitor
+            punto_cruce = np.random.randint(0, self.numReglas)
+            print("Punto de cruce: ", punto_cruce)
+            individuo_1['reglas'] = progenitores[i]['reglas'][:punto_cruce]
+            individuo_1['reglas'] = individuo_1['reglas'] + progenitores[i+1]['reglas'][punto_cruce:]
+            individuo_2['reglas'] = progenitores[i+1]['reglas'][:punto_cruce]
+            individuo_2['reglas'] = individuo_2['reglas'] + progenitores[i]['reglas'][punto_cruce:]
+            print(" -- Despues de cruce")
+            print(individuo_1)
+            print(individuo_2)
+        # En caso contrario los padres son los nuevos individuos
+            
             poblacion_nueva.append(individuo_1)
             poblacion_nueva.append(individuo_2)
-
-        return poblacion_nueva
+            
+        return poblacion_nueva[:n_cruces]
 
     def seleccion_elitismo(self):
         """Se selecciona el porcentaje marcada entre los mejores fitness de todos los individuos que formaran
@@ -301,8 +319,11 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
         # Probabilidad de ser elegido de cada individuo
         for individuo in range(len(self.poblacion)):
-            fitness_ponderado = self.poblacion[individuo]['fitness']/suma_fitness
-            lista_fitness_ponderados.append(fitness_ponderado)
+            if suma_fitness == 0:
+                lista_fitness_ponderados.append(0)
+            else:
+                fitness_ponderado = self.poblacion[individuo]['fitness']/suma_fitness
+                lista_fitness_ponderados.append(fitness_ponderado)
 
         # Generamos la lista de progenitores con la funcion de numpy random_choice
         indices_progenitores = np.random.choice(len(self.poblacion),len(self.poblacion), lista_fitness_ponderados)
@@ -311,6 +332,8 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         for i in indices_progenitores:
             progenitores.append(self.poblacion[i])
 
+        print(" - Progenitores: ", progenitores)
+
         return progenitores
 
 
@@ -318,17 +341,15 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         """ Funcion que calcula el fitness de un individuo de la poblacion"""
 
         datTrain = self.datos_transformados[datosTrain]
-
+    
         # Para cada individuo recorremos todos los datos
         for individuo in self.poblacion:
-
             # Contador que cuenta el numero de aciertos del individuo respecto a todos los datos, que es el fitness
             aciertos = 0
             for dato in datTrain:
                 clases_predichas = []
                 pred = -1
                 for regla in individuo['reglas']:
-
                     # And logico de los atributos
                     res = np.bitwise_and(dato.astype(int), regla.astype(int))
                     num_unos = (res[:-1] == 1).sum()
@@ -354,6 +375,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
 
             # Calculo del fitness para cada individuo.
             individuo['fitness'] = aciertos / len(datTrain)
+            print("Fitness: ", individuo['fitness'])
 
     def graficas_fitness(self):
         """ Funcion que genera las graficas del fitness medio de la poblacion y la evolucion del fitness del mejor individuo."""
