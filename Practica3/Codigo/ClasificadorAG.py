@@ -5,7 +5,7 @@ import random
 
 class ClasificadorAlgoritmoGenetico(Clasificador):
 
-    def __init__(self, numGeneraciones, numIndividuos, numReglas = 8, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85):
+    def __init__(self, numGeneraciones, numIndividuos, numReglas = 8, probabilidadMutacion = 0.1, elitismo = 0.05, probabilidadCruce = 0.85, numAtributosCompare = 1):
 
         self.numGeneraciones = numGeneraciones
         self.numIndividuos = numIndividuos
@@ -15,6 +15,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
         self.probabilidadCruce = probabilidadCruce
         self.listaFitnessMedios = []
         self.listaFitnessChampion = []
+        self.numAtributosCompare = numAtributosCompare
 
         super().__init__()
 
@@ -104,7 +105,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
                 num_unos = (res[:-1] == 1).sum()
                 
                 # En caso de que todos los atributos coincidan, guardamos la clase que predice esa regla.
-                if num_unos >= 1:
+                if num_unos >= self.numAtributosCompare:
                     clases_predichas.append(regla[-1])
 
             # En el caso en el que se haya predicho algo, vemos cual es la clase mayoritaria y la devolvemos
@@ -331,7 +332,7 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
                     num_unos = (res[:-1] == 1).sum()
 
                     # Si coinciden todos guardamos la clase de las reglas que se activan
-                    if num_unos >= 1:
+                    if num_unos >= self.numAtributosCompare:
                         clases_predichas.append(regla[-1])
 
                 # Predecimos la clase mayoritaria
