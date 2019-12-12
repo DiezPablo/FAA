@@ -36,9 +36,6 @@ class ClasificadorAlgoritmoGenetico(Clasificador):
             
             # Calculo del fitness de la poblacion
             self.fitness(datosTrain)
-            
-            print("Mejor individuo de la generacion ", numGen)
-            print(self.champion())
 
             # Guardamos los fitness medios de cada poblacion
             suma_fitness = 0
